@@ -1,0 +1,2 @@
+# cifstack
+Focal stacking project
