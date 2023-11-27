@@ -7,9 +7,13 @@ import os
 from glob import glob
 from argparse import ArgumentParser
 
+import numpy as np
 import cv2
 
 import dummyalg1, dummyalg2, alg3
+
+from PIL import Image
+import PIL
 
 def main():
     _parser = ArgumentParser(prog="Tool to focus stack a list of images.")
@@ -43,42 +47,42 @@ def main():
         type=int,
     )
     
-    # args = _parser.parse_args()
+    args = _parser.parse_args()
     
     image_files = sum(
-        [glob(f"{'InputFolder'}/*.{ext}") for ext in ["jpg", "png", "jpeg", "JPG"]], []
+        [glob(f"{args.input}/*.{ext}") for ext in ["jpg", "png", "jpeg", "JPG"]], []
     )
-    # image_files = sum(
-    #     [glob(f"{args.input}/*.{ext}") for ext in ["jpg", "png", "jpeg", "JPG"]], []
-    # )
-    # num_files = len(image_files)
-    # print("*Number of image files found:", num_files)
-    # if (len(image_files) < 1):
-    #     print("No image files found in input folder! Canceling operation.")
-    #     exit()
+    num_files = len(image_files)
+    print("*Number of image files found:", num_files)
+    if (len(image_files) < 1):
+        print("No image files found in input folder! Canceling operation.")
+        exit()
 
-    # match args.alg:
-    #     case '2':
-    #         print("*Activating dummy algorithm 2.")
-    #         alg = dummyalg2.DummyAlgorithm2()
-    #     case '3':
-    #         print("*Activating algorithm 3.")
-    #         alg = alg3.Alg3WaveletTest()
-    #     case _:
-    #         print("*Activating dummy algorithm 1 (default).")
-    #         alg = dummyalg1.DummyAlgorithm1()
-
-    print("*Activating algorithm 3.")
-    alg = alg3.Alg3WaveletTest()
+    match args.alg:
+        case '2':
+            print("*Activating dummy algorithm 2.")
+            alg = dummyalg2.DummyAlgorithm2()
+        case '3':
+            print("*Activating algorithm 3.")
+            alg = alg3.Alg3WaveletTest()
+        case _:
+            print("*Activating dummy algorithm 1 (default).")
+            alg = dummyalg1.DummyAlgorithm1()
 
     resultImg = alg.startAlg(image_files)
     print("*Algorithm finished running")
     
-    # if os.path.exists(args.output):
-    #     print(f"*Image {args.output} exists already. Canceling write operation.")
-    # else:
-    #     print(f"*Writing image {args.output}")
-    #     cv2.imwrite(args.output, resultImg)
+    if os.path.exists(args.output):
+        print(f"*Image {args.output} exists already. Canceling write operation.")
+    else:
+        print(f"*Writing image {args.output}")
+        # cv2.imwrite(args.output, resultImg)
+        print('resultImg shape', resultImg.shape)
+        # print(resultImg)
+        # im1 = Image.fromarray((resultImg * 55).astype(np.uint8))
+        im1 = Image.fromarray((resultImg).astype(np.uint8))
+        # im1 = im1.convert('RGB')
+        im1.save(args.output)
 
 
 if __name__ == "__main__":
