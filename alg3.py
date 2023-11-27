@@ -15,8 +15,8 @@ class Alg3WaveletTest(object):
             if family == 'gaus':
                 print('continuing')
                 continue
-            # for waveletchoice in pywt.wavelist(family):
-            for waveletchoice in ['haar']:
+            for waveletchoice in pywt.wavelist(family):
+            # for waveletchoice in ['haar']:
                 print(pywt.families())
                 print(pywt.wavelist(family))
                 print('waveletchoice', waveletchoice)
@@ -40,7 +40,7 @@ class Alg3WaveletTest(object):
                 recompimg[:,:,0] = pywt.idwt2(decomp3, waveletchoice, mode='per')[0:recompimg.shape[0],:]
                 im1 = Image.fromarray((recompimg))
                 # im1 = im1.convert('RGB')
-                recompname = 'dwt' + waveletchoice + '_recomp.jpg'
+                recompname = 'OutputFolder/dwt' + waveletchoice + '_recomp.jpg'
                 print('Saving recomposition')
                 im1.save(recompname)
                 print('Recomposition saved in ' + recompname)
@@ -73,7 +73,7 @@ class Alg3WaveletTest(object):
                     combinedImg[:,:,2-k] = LL
                     k += 1
                     # plt.show()
-                    figname = 'dwt' + str(k) + '_' + waveletchoice + '.jpg'
+                    figname = 'OutputFolder/dwt' + str(k) + '_' + waveletchoice + '.jpg'
                     plt.savefig(figname)
                     plt.close()
                     print('Decomposition figure saved in ' + figname)

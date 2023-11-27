@@ -82,7 +82,7 @@ def main():
         # im1 = Image.fromarray((resultImg * 55).astype(np.uint8))
         im1 = Image.fromarray((resultImg).astype(np.uint8))
         # im1 = im1.convert('RGB')
-        im1.save(args.output)
+        im1.save('OutputFolder/' + args.output)
 
 
 if __name__ == "__main__":
