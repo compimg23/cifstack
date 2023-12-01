@@ -96,6 +96,7 @@ class Alg3WaveletTest(object):
                         ax.set_xticks([])
                         ax.set_yticks([])
                     fig.tight_layout()
+                    print('npma',np.max(LL))
                     LL = LL / np.max(LL)
                     # print('LL', LL)
                     combinedImg[:,:,2-k] = LL
@@ -107,4 +108,4 @@ class Alg3WaveletTest(object):
                     print('Decomposition figure saved in ' + figname)
 
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
-        return combinedImg * 211
+        return combinedImg * 255 # normalized b/c LL has values > 255
