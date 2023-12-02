@@ -46,7 +46,7 @@ class Alg4MergeTest(object):
                     LL1, (LH1, HL1, HH1) = decomp1
                     LL2, (LH2, HL2, HH2) = decomp2
                     LL3, (LH3, HL3, HH3) = decomp3
-                    print(LH1)
+                    # print(LH1)
                     print('Processing')
                     # LH1[0:100,:] = LH1[100:200,:]
                     # HL1[0:100,:] = HL1[100:200,:]
@@ -63,7 +63,7 @@ class Alg4MergeTest(object):
                     # HH3 = np.clip(HH3, -1, 1)
 
                     # decomp3[1] = np.clip(decomp3[1], -100, 100)
-                    print(LH1)
+                    # print(LH1)
                     decomp1 = LL1, (LH1, HL1, HH1)
                     decomp2 = LL2, (LH2, HL2, HH2)
                     decomp3 = LL3, (LH3, HL3, HH3)
@@ -86,7 +86,7 @@ class Alg4MergeTest(object):
                     #     np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
                     #     newdecomp1[1][2], decomp1[1][2])
                     # newdecomp1 = newdecomp10, (newdecomp110, newdecomp111, newdecomp112)
-                    newdecomp1 = self.combine_decomp(newdecomp1, decomp1)
+                    newdecomp1 = self.combine_decomps(newdecomp1, decomp1)
 
                     # newdecomp20 = self.absmax(newdecomp2[0], decomp2[0])
 
@@ -103,7 +103,7 @@ class Alg4MergeTest(object):
                     #     np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
                     #     newdecomp2[1][2], decomp2[1][2])
                     # newdecomp2 = newdecomp20, (newdecomp210, newdecomp211, newdecomp212)
-                    newdecomp2 = self.combine_decomp(newdecomp2, decomp2)
+                    newdecomp2 = self.combine_decomps(newdecomp2, decomp2)
 
                     # newdecomp30 = self.absmax(newdecomp3[0], decomp3[0])
 
@@ -120,7 +120,7 @@ class Alg4MergeTest(object):
                     #     np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
                     #     newdecomp3[1][2], decomp3[1][2])
                     # newdecomp3 = newdecomp30, (newdecomp310, newdecomp311, newdecomp312)
-                    newdecomp3 = self.combine_decomp(newdecomp3, decomp3)
+                    newdecomp3 = self.combine_decomps(newdecomp3, decomp3)
                     
                     # print(recompimg.shape)
                     recompimg = np.zeros_like(currimg)
@@ -165,7 +165,7 @@ class Alg4MergeTest(object):
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
 
-    def combine_decomp(self, newdecompx, currdecomp):
+    def combine_decomps(self, newdecompx, currdecomp):
         boolMat = np.abs(newdecompx[1][0]) + np.abs(newdecompx[1][1]) + np.abs(newdecompx[1][2]) > \
                          np.abs(currdecomp[1][0]) + np.abs(currdecomp[1][1]) + np.abs(currdecomp[1][2])
         # print(boolMat)
