@@ -17,12 +17,17 @@ class Alg4MergeTest(object):
         print('sorted image files', image_files)
         family = 'cmor'
         waveletchoice = 'haar'
+        # for family in ['haar']: #pywt.families():
+        print(pywt.families())
         for family in ['haar']: #pywt.families():
             print('family', family)
-            if family == 'gaus':
+            if family == 'gaus' or family == 'mexh' or family == 'morl' or family == 'cgau' or family == 'shan' or family == 'fbsp' or family == 'cmor':
                 print('continuing')
                 continue
+            # for waveletchoice in pywt.wavelist(family):
+            print('wavelist', pywt.wavelist(family))
             for waveletchoice in pywt.wavelist(family):
+                print('waveletchoice', waveletchoice)
                 img_mats = [cv2.imread(img) for img in image_files]
                 num_files = len(image_files)
                 print('numfile', num_files)
@@ -130,8 +135,8 @@ class Alg4MergeTest(object):
 
                     im1 = Image.fromarray((recompimg))
                     recompname = 'OutputFolder/dwt_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
-                    print('Saving recomposition')
-                    im1.save(recompname)
+                    # print('Saving recomposition')
+                    # im1.save(recompname)
                     print('Recomposition saved in ' + recompname)
                     
                     combinedImg = np.zeros((decomp1[0].shape[0],decomp1[0].shape[1],3))
@@ -155,9 +160,14 @@ class Alg4MergeTest(object):
                         combinedImg[:,:,2-k] = LL
                         k += 1
                         figname = 'OutputFolder/chan' + str(k) + '_dwt' + str(j) + '_' + waveletchoice + '.jpg'
-                        plt.savefig(figname)
-                        plt.close()
-                        print('Decomposition figure saved in ' + figname)
+                        # plt.savefig(figname)
+                        # plt.close()
+                        # print('Decomposition figure saved in ' + figname)
+                plt.savefig(figname)
+                plt.close()
+                print('Decomposition figure saved in ' + figname)
+                print('Saving recomposition')
+                im1.save(recompname)
 
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
         return recompimg
