@@ -4,6 +4,10 @@ from scipy.signal import fftconvolve
 import pywt
 import matplotlib.pyplot as plt
 from PIL import Image
+from skimage.morphology import rectangle
+from skimage.filters.rank import modal, majority, maximum
+from scipy.ndimage import maximum_filter
+from scipy.signal import medfilt2d
 
 class Alg4MergeTest(object):
     def startAlg(self, image_files):
@@ -68,24 +72,48 @@ class Alg4MergeTest(object):
                     # decomp3 = abs(LL3), (abs(LH3), abs(HL3), abs(HH3))
 
                     # newdecomp10 = self.absmax(newdecomp1[0], decomp1[0])
-                    newdecomp10 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]), newdecomp1[0], decomp1[0])
-                    newdecomp110 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]), newdecomp1[1][0], decomp1[1][0])
-                    newdecomp111 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]), newdecomp1[1][1], decomp1[1][1])
-                    newdecomp112 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]), newdecomp1[1][2], decomp1[1][2])
+                    newdecomp10 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                         np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                         newdecomp1[0], decomp1[0])
+                    newdecomp110 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                        medfilt2d(newdecomp1[1][0],kernel_size=(3,3)), decomp1[1][0])
+                    newdecomp111 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                        medfilt2d(newdecomp1[1][1],kernel_size=(3,3)), decomp1[1][1])
+                    newdecomp112 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                        medfilt2d(newdecomp1[1][2],kernel_size=(3,3)), decomp1[1][2])
                     newdecomp1 = newdecomp10, (newdecomp110, newdecomp111, newdecomp112)
 
                     # newdecomp20 = self.absmax(newdecomp2[0], decomp2[0])
-                    newdecomp20 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]), newdecomp2[0], decomp2[0])
-                    newdecomp210 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]), newdecomp2[1][0], decomp2[1][0])
-                    newdecomp211 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]), newdecomp2[1][1], decomp2[1][1])
-                    newdecomp212 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]), newdecomp2[1][2], decomp2[1][2])
+                    newdecomp20 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                        newdecomp2[0], decomp2[0])
+                    newdecomp210 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                        medfilt2d(newdecomp2[1][0],kernel_size=(3,3)), decomp2[1][0])
+                    newdecomp211 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                        medfilt2d(newdecomp2[1][1],kernel_size=(3,3)), decomp2[1][1])
+                    newdecomp212 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                        medfilt2d(newdecomp3[1][2],kernel_size=(3,3)), decomp2[1][2])
                     newdecomp2 = newdecomp20, (newdecomp210, newdecomp211, newdecomp212)
 
                     # newdecomp30 = self.absmax(newdecomp3[0], decomp3[0])
-                    newdecomp30 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]), newdecomp3[0], decomp3[0])
-                    newdecomp310 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]), newdecomp3[1][0], decomp3[1][0])
-                    newdecomp311 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]), newdecomp3[1][1], decomp3[1][1])
-                    newdecomp312 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]), newdecomp3[1][2], decomp3[1][2])
+                    newdecomp30 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                        newdecomp3[0], decomp3[0])
+                    newdecomp310 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                        medfilt2d(newdecomp3[1][0],kernel_size=(3,3)), decomp3[1][0])
+                    newdecomp311 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                        medfilt2d(newdecomp3[1][1],kernel_size=(3,3)), decomp3[1][1])
+                    newdecomp312 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                        medfilt2d(newdecomp3[1][2],kernel_size=(3,3)), decomp3[1][2])
                     newdecomp3 = newdecomp30, (newdecomp310, newdecomp311, newdecomp312)
                     
                     # print(recompimg.shape)
