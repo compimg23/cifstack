@@ -72,49 +72,55 @@ class Alg4MergeTest(object):
                     # decomp3 = abs(LL3), (abs(LH3), abs(HL3), abs(HH3))
 
                     # newdecomp10 = self.absmax(newdecomp1[0], decomp1[0])
-                    newdecomp10 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
-                         np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
-                         newdecomp1[0], decomp1[0])
-                    newdecomp110 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
-                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
-                        newdecomp1[1][0], decomp1[1][0])
-                    newdecomp111 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
-                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
-                        newdecomp1[1][1], decomp1[1][1])
-                    newdecomp112 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
-                        np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
-                        newdecomp1[1][2], decomp1[1][2])
-                    newdecomp1 = newdecomp10, (newdecomp110, newdecomp111, newdecomp112)
+
+                    # newdecomp10 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                    #      np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                    #      newdecomp1[0], decomp1[0])
+                    # newdecomp110 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                    #     np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                    #     newdecomp1[1][0], decomp1[1][0])
+                    # newdecomp111 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                    #     np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                    #     newdecomp1[1][1], decomp1[1][1])
+                    # newdecomp112 = np.where(np.abs(newdecomp1[1][0]) + np.abs(newdecomp1[1][1]) + np.abs(newdecomp1[1][2]) > \
+                    #     np.abs(decomp1[1][0]) + np.abs(decomp1[1][1]) + np.abs(decomp1[1][2]),
+                    #     newdecomp1[1][2], decomp1[1][2])
+                    # newdecomp1 = newdecomp10, (newdecomp110, newdecomp111, newdecomp112)
+                    newdecomp1 = self.combine_decomp(newdecomp1, decomp1)
 
                     # newdecomp20 = self.absmax(newdecomp2[0], decomp2[0])
-                    newdecomp20 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
-                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
-                        newdecomp2[0], decomp2[0])
-                    newdecomp210 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
-                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
-                        newdecomp2[1][0], decomp2[1][0])
-                    newdecomp211 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
-                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
-                        newdecomp2[1][1], decomp2[1][1])
-                    newdecomp212 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
-                        np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
-                        newdecomp2[1][2], decomp2[1][2])
-                    newdecomp2 = newdecomp20, (newdecomp210, newdecomp211, newdecomp212)
+
+                    # newdecomp20 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                    #     np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                    #     newdecomp2[0], decomp2[0])
+                    # newdecomp210 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                    #     np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                    #     newdecomp2[1][0], decomp2[1][0])
+                    # newdecomp211 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                    #     np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                    #     newdecomp2[1][1], decomp2[1][1])
+                    # newdecomp212 = np.where(np.abs(newdecomp2[1][0]) + np.abs(newdecomp2[1][1]) + np.abs(newdecomp2[1][2]) > \
+                    #     np.abs(decomp2[1][0]) + np.abs(decomp2[1][1]) + np.abs(decomp2[1][2]),
+                    #     newdecomp2[1][2], decomp2[1][2])
+                    # newdecomp2 = newdecomp20, (newdecomp210, newdecomp211, newdecomp212)
+                    newdecomp2 = self.combine_decomp(newdecomp2, decomp2)
 
                     # newdecomp30 = self.absmax(newdecomp3[0], decomp3[0])
-                    newdecomp30 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
-                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
-                        newdecomp3[0], decomp3[0])
-                    newdecomp310 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
-                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
-                        newdecomp3[1][0], decomp3[1][0])
-                    newdecomp311 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
-                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
-                        newdecomp3[1][1], decomp3[1][1])
-                    newdecomp312 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
-                        np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
-                        newdecomp3[1][2], decomp3[1][2])
-                    newdecomp3 = newdecomp30, (newdecomp310, newdecomp311, newdecomp312)
+
+                    # newdecomp30 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                    #     np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                    #     newdecomp3[0], decomp3[0])
+                    # newdecomp310 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                    #     np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                    #     newdecomp3[1][0], decomp3[1][0])
+                    # newdecomp311 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                    #     np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                    #     newdecomp3[1][1], decomp3[1][1])
+                    # newdecomp312 = np.where(np.abs(newdecomp3[1][0]) + np.abs(newdecomp3[1][1]) + np.abs(newdecomp3[1][2]) > \
+                    #     np.abs(decomp3[1][0]) + np.abs(decomp3[1][1]) + np.abs(decomp3[1][2]),
+                    #     newdecomp3[1][2], decomp3[1][2])
+                    # newdecomp3 = newdecomp30, (newdecomp310, newdecomp311, newdecomp312)
+                    newdecomp3 = self.combine_decomp(newdecomp3, decomp3)
                     
                     # print(recompimg.shape)
                     recompimg = np.zeros_like(currimg)
@@ -158,3 +164,18 @@ class Alg4MergeTest(object):
     
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
+
+    def combine_decomp(self, newdecompx, currdecomp):
+        boolMat = np.abs(newdecompx[1][0]) + np.abs(newdecompx[1][1]) + np.abs(newdecompx[1][2]) > \
+                         np.abs(currdecomp[1][0]) + np.abs(currdecomp[1][1]) + np.abs(currdecomp[1][2])
+        # print(boolMat)
+        newdecompx0 = np.where(boolMat,
+                newdecompx[0], currdecomp[0])
+        newdecompx10 = np.where(boolMat,
+            newdecompx[1][0], currdecomp[1][0])
+        newdecompx11 = np.where(boolMat,
+            newdecompx[1][1], currdecomp[1][1])
+        newdecompx12 = np.where(boolMat,
+            newdecompx[1][2], currdecomp[1][2])
+        newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
+        return newdecompx
