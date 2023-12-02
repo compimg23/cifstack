@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 import numpy as np
 import cv2
 
-import dummyalg1, dummyalg2, alg3
+import dummyalg1, dummyalg2, alg3, alg4
 
 from PIL import Image
 import PIL
@@ -65,6 +65,9 @@ def main():
         case '3':
             print("*Activating algorithm 3.")
             alg = alg3.Alg3WaveletTest()
+        case '4':
+            print("*Activating algorithm 3.")
+            alg = alg4.Alg4MergeTest()
         case _:
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()
