@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 
+transFolder = 'TransFolder/'
+
 def findHomography(image_1, image_2):
     # BEGIN NEW CODE FOR findTransformECC()
     warp_mode = cv2.MOTION_AFFINE
@@ -33,11 +35,11 @@ def align_images_compare_last(images):
         #warpAffine for MOTION_AFFINE mode.
         newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         
-        cv2.imwrite('transimage' + str(i) + '.png', newimage)
+        cv2.imwrite(transFolder + 'transimage' + str(i) + '.png', newimage)
         outimages.append(newimage)
         # If you find that there's a large amount of ghosting, it may be because one or more of the input
         # images gets misaligned.  Outputting the aligned images may help diagnose that.
-        # cv2.imwrite("aligned{}.png".format(i), newimage)
+        # cv2.imwrite(transFolder + "aligned{}.png".format(i), newimage)
 
     # add last image that was compared to without transforming it.
     outimages.append(images[numImages])
@@ -63,10 +65,10 @@ def align_images_compare_first(images):
         #warpAffine for MOTION_AFFINE mode.
         newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         
-        cv2.imwrite('transimage' + str(i) + '.png', newimage)
+        cv2.imwrite(transFolder + 'transimage' + str(i) + '.png', newimage)
         outimages.append(newimage)
         # If you find that there's a large amount of ghosting, it may be because one or more of the input
         # images gets misaligned.  Outputting the aligned images may help diagnose that.
-        # cv2.imwrite("aligned{}.png".format(i), newimage)
+        # cv2.imwrite(transFolder + "aligned{}.png".format(i), newimage)
 
     return outimages
