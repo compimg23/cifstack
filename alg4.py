@@ -15,6 +15,9 @@ class Alg4MergeTest(object):
         print('image files', image_files)
         image_files = sorted(image_files)
         print('sorted image files', image_files)
+        img_mats = [cv2.imread(img) for img in image_files]
+        num_files = len(image_files)
+        print('numfile', num_files)
         family = 'cmor'
         waveletchoice = 'haar'
         # for family in ['haar']: #pywt.families():
@@ -28,9 +31,6 @@ class Alg4MergeTest(object):
             print('wavelist', pywt.wavelist(family))
             for waveletchoice in pywt.wavelist(family):
                 print('waveletchoice', waveletchoice)
-                img_mats = [cv2.imread(img) for img in image_files]
-                num_files = len(image_files)
-                print('numfile', num_files)
                 firstimg = img_mats[0]
                 decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
                 decomp2 = pywt.dwt2(firstimg[:,:,1], waveletchoice, mode='per')
