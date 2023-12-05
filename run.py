@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 import numpy as np
 import cv2
 
-import dummyalg1, dummyalg2, alg3, alg4, alg5
+import dummyalg1, dummyalg2, alg3, alg4, alg5, alg6
 
 from PIL import Image
 import PIL
@@ -66,11 +66,14 @@ def main():
             print("*Activating algorithm 3.")
             alg = alg3.Alg3WaveletTest()
         case '4':
-            print("*Activating algorithm 3.")
+            print("*Activating algorithm 4.")
             alg = alg4.Alg4MergeTest()
         case '5':
-            print("*Activating algorithm 3.")
+            print("*Activating algorithm 5.")
             alg = alg5.Alg5MergeTest()
+        case '6':
+            print("*Activating algorithm 6.")
+            alg = alg6.Alg6MergeTest()
         case _:
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()
@@ -82,13 +85,13 @@ def main():
         print(f"*Image {args.output} exists already. Canceling write operation.")
     else:
         print(f"*Writing image {args.output}")
-        # cv2.imwrite(args.output, resultImg)
-        print('resultImg shape', resultImg.shape)
-        # print(resultImg)
         # im1 = Image.fromarray((resultImg * 55).astype(np.uint8))
-        im1 = Image.fromarray((resultImg).astype(np.uint8))
-        # im1 = im1.convert('RGB')
-        im1.save('OutputFolder/' + args.output)
+        cv2.imwrite('OutputFolder/' + args.output, resultImg)
+
+        #Old output with switched R-B channels.
+        # im1 = Image.fromarray((resultImg).astype(np.uint8))
+        # # im1 = im1.convert('RGB')
+        # im1.save('OutputFolder/' + args.output)
 
 
 if __name__ == "__main__":

@@ -64,14 +64,15 @@ class Alg4MergeTest(object):
                     newdecomp3 = self.combine_decomps(newdecomp3, decomp3)
                     
                     recompimg = np.zeros_like(currimg)
-                    recompimg[:,:,2] = pywt.idwt2(newdecomp1, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
+                    recompimg[:,:,0] = pywt.idwt2(newdecomp1, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
                     recompimg[:,:,1] = pywt.idwt2(newdecomp2, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
-                    recompimg[:,:,0] = pywt.idwt2(newdecomp3, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
+                    recompimg[:,:,2] = pywt.idwt2(newdecomp3, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
 
-                    im1 = Image.fromarray((recompimg))
+                    # im1 = Image.fromarray((recompimg))
                     recompname = 'OutputFolder/dwt_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     print('Saving recomposition')
-                    im1.save(recompname)
+                    # im1.save(recompname)
+                    cv2.imwrite(recompname, recompimg)
                     print('Recomposition saved in ' + recompname)
                     
                     combinedImg = np.zeros((decomp1[0].shape[0],decomp1[0].shape[1],3))
@@ -90,7 +91,7 @@ class Alg4MergeTest(object):
                             ax.set_xticks([])
                             ax.set_yticks([])
                         fig.tight_layout()
-                        print('npma',np.max(LL))
+                        # print('npmax',np.max(LL))
                         LL = LL / np.max(LL)
                         combinedImg[:,:,2-k] = LL
                         k += 1
@@ -99,7 +100,8 @@ class Alg4MergeTest(object):
                         plt.close() #Important to close plot often, otherwise memory leak and program crashes after 50 iterations!
                         print('Decomposition figure saved in ' + figname)
                 print('Saving recomposition')
-                im1.save(recompname)
+                # im1.save(recompname)
+                cv2.imwrite(recompname, recompimg)
 
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
         return recompimg
