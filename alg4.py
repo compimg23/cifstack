@@ -135,8 +135,8 @@ class Alg4MergeTest(object):
 
                     im1 = Image.fromarray((recompimg))
                     recompname = 'OutputFolder/dwt_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
-                    # print('Saving recomposition')
-                    # im1.save(recompname)
+                    print('Saving recomposition')
+                    im1.save(recompname)
                     print('Recomposition saved in ' + recompname)
                     
                     combinedImg = np.zeros((decomp1[0].shape[0],decomp1[0].shape[1],3))
@@ -160,12 +160,12 @@ class Alg4MergeTest(object):
                         combinedImg[:,:,2-k] = LL
                         k += 1
                         figname = 'OutputFolder/chan' + str(k) + '_dwt' + str(j) + '_' + waveletchoice + '.jpg'
-                        # plt.savefig(figname)
-                        # plt.close()
-                        # print('Decomposition figure saved in ' + figname)
-                plt.savefig(figname)
-                plt.close()
-                print('Decomposition figure saved in ' + figname)
+                        plt.savefig(figname)
+                        plt.close() #Important to close plot often, otherwise memory leak and program crashes after 50 iterations!
+                        print('Decomposition figure saved in ' + figname)
+                # plt.savefig(figname)
+                # plt.close()
+                # print('Decomposition figure saved in ' + figname)
                 print('Saving recomposition')
                 im1.save(recompname)
 
