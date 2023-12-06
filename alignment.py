@@ -42,7 +42,7 @@ def align_images_compare_last(images):
         # cv2.imwrite(transFolder + "aligned{}.png".format(i), newimage)
 
     # add last image that was compared to without transforming it.
-    outimages.append(images[numImages])
+    outimages.append(images[numImages-1])
     return outimages
 
 def align_images_compare_first(images):
