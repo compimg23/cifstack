@@ -64,7 +64,7 @@ def main():
             alg = dummyalg2.DummyAlgorithm2()
         case '3':
             print("*Activating algorithm 3.")
-            alg = alg3.Alg3WaveletTest()
+            alg = alg3.Alg3WaveletGray()
         case '4':
             print("*Activating algorithm 4.")
             alg = alg4.Alg4MergeTest()
