@@ -67,13 +67,13 @@ def main():
 
     if args.alignver == 'old' or args.alignver == 'Old':
         # use old (midterm) alignment
-        if args.compare == 'first':
+        if args.compareimg == 'first':
             alignMethod = alignment_midterm.align_images_compare_first
         else:
             alignMethod = alignment_midterm.align_images_compare_last
     else:
         # use new (better in *most* cases) alignment
-        if args.compare == 'first':
+        if args.compareimg == 'first':
             alignMethod = alignment.align_images_compare_first
         else:
             alignMethod = alignment.align_images_compare_last
