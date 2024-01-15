@@ -3,31 +3,23 @@ import cv2
 
 transFolder = 'TransFolder/'
 
-def findHomography(image_2, image_1):
+def findHomography(image_1, image_2):
     # BEGIN NEW CODE FOR findTransformECC()
     warp_mode = cv2.MOTION_AFFINE
-    num_iter = 50 #1000
-    termination_eps = 0.001 #1e-7
+    num_iter = 50 #1000 <- original midterm value
+    termination_eps = 0.001 #1e-7 <- original midterm value
     warp_matrix = np.eye(2, 3, dtype=np.float32) #3x3 matrix for HOMOGRAPHY, 2x3 for AFFINE
-    warp_matrix[0][0] = 1.0;
-    warp_matrix[1][1] = 1.0;
-    onesMask = np.ones_like(image_1)
-    onesMask[0:20,:] = 0
-    onesMask[-20:-1,:] = 0
-    onesMask[:,0:20] = 0
-    onesMask[:,-20:-1] = 0
-    # print("onesMask",onesMask[-23:-18,-23:-18])
     # END NEW CODE
 
     print("finding transform")
     # homography, mask = cv2.findHomography(image_1_points, image_2_points, cv2.RANSAC, ransacReprojThreshold=2.0)
     # (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_MAX_ITER, num_iter,termination_eps))
-    (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps), inputMask=onesMask, gaussFiltSize=3)
+    (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps))
 
     return homography
 
 def align_images_compare_last(images):
-    print("New align_images_compare_last()")
+    print("Old align_images_compare_last()")
     outimages = []    #   We assume that image 0 is
     numImages = len(images)
     # image1gray = cv2.cvtColor(images[0],cv2.COLOR_BGR2GRAY)
@@ -42,8 +34,7 @@ def align_images_compare_last(images):
         # newimage = cv2.warpPerspective(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR)
 
         #warpAffine for MOTION_AFFINE mode.
-        # newimage = images[i]
-        newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+        newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         
         cv2.imwrite(transFolder + 'transimage' + str(i) + '.png', newimage)
         outimages.append(newimage)
@@ -56,7 +47,7 @@ def align_images_compare_last(images):
     return outimages
 
 def align_images_compare_first(images):
-    print("New align_images_compare_first()")
+    print("Old align_images_compare_first()")
     outimages = []    #   We assume that image 0 is
     numImages = len(images)
     # image1gray = cv2.cvtColor(images[0],cv2.COLOR_BGR2GRAY)
@@ -74,8 +65,7 @@ def align_images_compare_first(images):
         # newimage = cv2.warpPerspective(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR)
 
         #warpAffine for MOTION_AFFINE mode.
-        # newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
-        newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+        newimage = cv2.warpAffine(images[i], hom, (images[i].shape[1], images[i].shape[0]), flags=cv2.INTER_LINEAR + cv2.WARP_INVERSE_MAP)
         
         cv2.imwrite(transFolder + 'transimage' + str(i) + '.png', newimage)
         outimages.append(newimage)

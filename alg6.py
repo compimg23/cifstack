@@ -13,7 +13,7 @@ import alignment
 transFolder = 'TransFolder/'
 
 class Alg6MergeTest(object):
-    def startAlg(self, image_files):
+    def startAlg(self, image_files, alignMethod):
         print("Algorithm5 starting.")
         # Code for algorithm 6 (from cmcguinness repository))
         print('image files', image_files)
@@ -31,7 +31,8 @@ class Alg6MergeTest(object):
             # focusimages.append(cv2.imread("{}".format(img), 0))
 
         print("Running alignment module.")
-        images = alignment.align_images_compare_first(focusimages)
+        # images = alignment.align_images_compare_last(focusimages)
+        images = alignMethod(focusimages)
         print("IMAGES",focusimages)
 
         print ("Computing the laplacian of the blurred images")
