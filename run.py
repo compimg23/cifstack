@@ -11,6 +11,7 @@ import numpy as np
 import cv2
 
 import dummyalg1, dummyalg2, alg3, alg4, alg5, alg6
+import alignment, alignment_midterm
 
 from PIL import Image
 import PIL
@@ -21,6 +22,12 @@ def main():
         "-a", "--alg", help="Number of algorithm to use.", required=True, type=str,
     )
     _parser.add_argument(
+        "-v", "--alignver", help="Use 'old' or 'new' alignment version.", required=False, type=str,
+    )
+    _parser.add_argument(
+        "-c", "--compareimg", help="Use 'last' or 'first' image for alignment comparison.", required=False, type=str,
+    )
+    _parser.add_argument(
         "-i",
         "--input",
         help="Directory of images to focus stack",
@@ -28,7 +35,7 @@ def main():
         type=str,
     )
     _parser.add_argument(
-        "-o", "--output", help="Name of output image.", required=True, type=str,
+        "-o", "--output", help="Name of output image including ending.", required=True, type=str,
     )
     _parser.add_argument(
         "-g",
@@ -58,6 +65,19 @@ def main():
         print("No image files found in input folder! Canceling operation.")
         exit()
 
+    if args.alignver == 'old' or args.alignver == 'Old':
+        # use old (midterm) alignment
+        if args.compareimg == 'first':
+            alignMethod = alignment_midterm.align_images_compare_first
+        else:
+            alignMethod = alignment_midterm.align_images_compare_last
+    else:
+        # use new (better in *most* cases) alignment
+        if args.compareimg == 'first':
+            alignMethod = alignment.align_images_compare_first
+        else:
+            alignMethod = alignment.align_images_compare_last
+
     match args.alg:
         case '2':
             print("*Activating dummy algorithm 2.")
@@ -78,7 +98,7 @@ def main():
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()
 
-    resultImg = alg.startAlg(image_files)
+    resultImg = alg.startAlg(image_files, alignMethod)
     print("*Algorithm finished running")
     
     if os.path.exists(args.output):

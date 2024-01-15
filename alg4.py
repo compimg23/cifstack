@@ -11,14 +11,15 @@ from scipy.signal import medfilt2d
 import alignment
 
 class Alg4MergeTest(object):
-    def startAlg(self, image_files):
+    def startAlg(self, image_files, alignMethod):
         print("Algorithm4 (wavelet decomposition) starting.")
         print('image files', image_files)
         image_files = sorted(image_files)
         print('sorted image files', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
         print("Running alignment module.")
-        img_mats = alignment.align_images_compare_first(img_mats)
+        # img_mats = alignment.align_images_compare_last(img_mats)
+        img_mats = alignMethod(img_mats)
         print("typeimgmats",type(img_mats))
         num_files = len(image_files)
         print('numfile', num_files)
