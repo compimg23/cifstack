@@ -11,7 +11,7 @@ import numpy as np
 import cv2
 
 import dummyalg1, dummyalg2, alg3, alg4, alg5, alg6
-import alignment, alignment_midterm
+import alignment, alignment_midterm, alignment_alt
 
 from PIL import Image
 import PIL
@@ -22,7 +22,7 @@ def main():
         "-a", "--alg", help="Number of algorithm to use.", required=True, type=str,
     )
     _parser.add_argument(
-        "-v", "--alignver", help="Use 'old' or 'new' alignment version.", required=False, type=str,
+        "-v", "--alignver", help="Use 'old' or 'new' or 'alt' alignment version.", required=False, type=str,
     )
     _parser.add_argument(
         "-c", "--compareimg", help="Use 'last' or 'first' image for alignment comparison.", required=False, type=str,
@@ -72,11 +72,18 @@ def main():
         else:
             alignMethod = alignment_midterm.align_images_compare_last
     else:
-        # use new (better in *most* cases) alignment
-        if args.compareimg == 'first':
-            alignMethod = alignment.align_images_compare_first
+        if args.alignver == 'alt' or args.alignver == 'Alt':
+            # use alt (better for cpu)) alignment
+            if args.compareimg == 'first':
+                alignMethod = alignment_alt.align_images_compare_first
+            else:
+                alignMethod = alignment_alt.align_images_compare_last
         else:
-            alignMethod = alignment.align_images_compare_last
+            # use new (better in *most* cases) alignment
+            if args.compareimg == 'first':
+                alignMethod = alignment.align_images_compare_first
+            else:
+                alignMethod = alignment.align_images_compare_last
 
     match args.alg:
         case '2':
