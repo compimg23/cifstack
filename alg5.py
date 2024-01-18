@@ -44,6 +44,7 @@ class Alg5MergeTest(object):
 
 
 def collapse(pyramid):
+    print('*Collapsing pyramid layers\r')
     image = pyramid[-1]
     for layer in pyramid[-2::-1]:
         expanded = expand_layer(image)
@@ -131,11 +132,14 @@ def deviation(image, kernel_size):
 
 def get_fused_base(images, kernel_size):
     layers = images.shape[0]
+
+    print('*\tCalculating entropie of base layer\r')
     entropies = np.zeros(images.shape[:3], dtype=np.float64)
+
+    print('*\tCalculating deviation of base layer\r')
     deviations = np.copy(entropies)
     for layer in range(layers):
         gray_image = cv2.cvtColor(images[layer].astype(np.float32), cv2.COLOR_BGR2GRAY).astype(np.uint8)
-        probabilities = get_probabilities(gray_image)
         entropies[layer] = entropy(gray_image, kernel_size)
         deviations[layer] = deviation(gray_image, kernel_size)
 
@@ -143,6 +147,7 @@ def get_fused_base(images, kernel_size):
     best_d = np.argmax(deviations, axis = 0)
     fused = np.zeros(images.shape[1:], dtype=np.float64)
     
+    print('*Fusing base layer\r')
     for layer in range(layers):
         fused += np.where(best_e[:,:,np.newaxis] == layer, images[layer], 0)
         fused += np.where(best_d[:,:,np.newaxis] == layer, images[layer], 0)
@@ -152,7 +157,10 @@ def get_fused_base(images, kernel_size):
 def fuse_pyramids(pyramids, kernel_size):
     fused = [get_fused_base(pyramids[-1], kernel_size)]
 
+    print('*Fusing remaining layers\r')
+
     for layer in range(len(pyramids) - 2, -1, -1):
+        print(f'*\tFusing images of layer {layer+1} of pyramid\r')
         fused.append(get_fused_laplacian(pyramids[layer]))
 
         # Corresponding layer n of each image
@@ -169,6 +177,7 @@ def get_fused_laplacian(laplacians):
     layers = laplacians.shape[0]
     region_energies = np.zeros(laplacians.shape[:3], dtype=np.float64)
 
+    print('*\t\tCalculating region energies')
     for layer in range(layers):
         gray_lap = cv2.cvtColor(laplacians[layer].astype(np.float32), cv2.COLOR_BGR2GRAY)
         region_energies[layer] = region_energy(gray_lap)
@@ -185,15 +194,18 @@ def region_energy(laplacian):
     return convolve(np.square(laplacian))
 
 def gaussian_pyramid(images, levels):
+    print('*\tCalculating Gaussian Pyramids\r')
     pyramid = [images.astype(np.float64)]
     num_images = images.shape[0]
 
     while levels > 0:
+        print(f'*\t\tApplying lowpass filter to base pyramid level {levels}\r')
         next_layer = reduce_layer(pyramid[-1][0])
         next_layer_size = [num_images] + list(next_layer.shape)
         pyramid.append(np.zeros(next_layer_size, dtype=next_layer.dtype))
         pyramid[-1][0] = next_layer
         for layer in range(1, images.shape[0]):
+            print(f'*\t\t\tProcessing level {levels} of image {layer} / {images.shape[0]-1}\r')
             pyramid[-1][layer] = reduce_layer(pyramid[-2][layer])
 
             # print(f'Dimension of gaussian pyramid is {np.shape(pyramid[-2][layer])} in layer {layer} and level {levels}.')
@@ -201,17 +213,24 @@ def gaussian_pyramid(images, levels):
 
         levels = levels - 1
 
+    print('*\tFinished Gaussian Pyramids\r')
+
     return pyramid
 
 def laplacian_pyramid(images, levels):
+    print('*Calculating Laplacian Pyramid\r')
+    
     gaussian = gaussian_pyramid(images, levels)
-
+    
     pyramid = [gaussian[-1]]
+
+    print('*\tExpanding individual pyramid layers n to layer n+1\r')
+
     for level in range(len(gaussian) - 1, 0, -1):
         gauss = gaussian[level - 1]
         pyramid.append(np.zeros(gauss.shape, dtype=gauss.dtype))
         for layer in range(images.shape[0]):
-            gauss_layer = gauss[layer]
+            gauss_layer = gauss[layer]   
             expanded = expand_layer(gaussian[level][layer])
             if expanded.shape != gauss_layer.shape:
                 expanded = expanded[:gauss_layer.shape[0],:gauss_layer.shape[1]]
@@ -221,11 +240,15 @@ def laplacian_pyramid(images, levels):
             # print(f'Dimension of laplacian pyramid is {np.shape(pyramid[-2][layer])} in layer {layer} and level {level}.')
             # cv2.imwrite(transFolder + 'gausspyramid' + str(layer) + str(level) +'.jpg', pyramid[-2][layer])
 
+    print('*Finished calculation of Laplacian Pyramids\r')
     return pyramid[::-1]
 
 def get_pyramid_fusion(images, min_size = 32):
     smallest_side = min(images[0].shape[:2])
     depth = int(np.log2(smallest_side / min_size))
+
+    print(f'\n*Resolution of images in Dataset is {images[0].shape[1]} by {images[0].shape[0]} pixels\r')
+    print(f'*Calculating a total of {depth+1} layers\r')
 
     pyramids = laplacian_pyramid(images, depth)
     fusion = fuse_pyramids(pyramids, kernel_size)
