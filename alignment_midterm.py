@@ -6,8 +6,8 @@ transFolder = 'TransFolder/'
 def findHomography(image_1, image_2):
     # BEGIN NEW CODE FOR findTransformECC()
     warp_mode = cv2.MOTION_AFFINE
-    num_iter = 50 #1000 <- original midterm value
-    termination_eps = 0.001 #1e-7 <- original midterm value
+    num_iter = 1000 #50 #1000 <- original midterm value
+    termination_eps = 1e-7 #0.001 #1e-7 <- original midterm value
     warp_matrix = np.eye(2, 3, dtype=np.float32) #3x3 matrix for HOMOGRAPHY, 2x3 for AFFINE
     # END NEW CODE
 
