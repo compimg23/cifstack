@@ -3,7 +3,7 @@ import cv2
 
 transFolder = 'TransFolder/'
 
-#Current improved alignment, works decent to very good for all image sets (now even CPU!)
+# This file works better for 'clock' image set. Alignment mask 0 around edges (20 pixels).
 def findHomography(image_2, image_1, warp_matrix = np.eye(2, 3, dtype=np.float32)):
     # BEGIN NEW CODE FOR findTransformECC()
     warp_mode = cv2.MOTION_AFFINE
@@ -12,21 +12,21 @@ def findHomography(image_2, image_1, warp_matrix = np.eye(2, 3, dtype=np.float32
     # warp_matrix = np.eye(2, 3, dtype=np.float32) #3x3 matrix for HOMOGRAPHY, 2x3 for AFFINE
     # warp_matrix[0][0] = 1.0;
     # warp_matrix[1][1] = 1.0;
-    # warp_matrix = np.eye(2, 3, dtype=np.float32)
+    warp_matrix = np.eye(2, 3, dtype=np.float32)
     print("WARPMAT", warp_matrix)
-    # onesMask = np.ones_like(image_1)
-    # onesMask[0:20,:] = 0
-    # onesMask[-20:-1,:] = 0
-    # onesMask[:,0:20] = 0
-    # onesMask[:,-20:-1] = 0
+    onesMask = np.ones_like(image_1)
+    onesMask[0:20,:] = 0
+    onesMask[-20:-1,:] = 0
+    onesMask[:,0:20] = 0
+    onesMask[:,-20:-1] = 0
     # print("onesMask",onesMask[-23:-18,-23:-18])
     # END NEW CODE
 
     print("finding transform")
     # homography, mask = cv2.findHomography(image_1_points, image_2_points, cv2.RANSAC, ransacReprojThreshold=2.0)
     # (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_MAX_ITER, num_iter,termination_eps))
-    # (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps), inputMask=onesMask, gaussFiltSize=3)
-    (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps))
+    (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps), inputMask=onesMask, gaussFiltSize=3)
+    # (cc, homography) = cv2.findTransformECC(image_1, image_2, warp_matrix, warp_mode, criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, num_iter, termination_eps))
 
     return homography
 
