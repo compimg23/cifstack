@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 import numpy as np
 import cv2
 
-import dummyalg1, dummyalg2, alg3, alg4, alg5, alg6, alg7, alg8
+import dummyalg1, dummyalg2, alg3, alg4, alg5, alg6, alg7, alg8, alg9, alg10
 import alignment, alignment_midterm, alignment_alt
 
 from PIL import Image
@@ -107,6 +107,12 @@ def main():
         case '8':
             print("*Activating algorithm 8.")
             alg = alg8.Alg8WaveletDeep()
+        case '9':
+            print("*Activating algorithm 8.")
+            alg = alg9.Alg9Waveletr2dDecompL1()
+        case '10':
+            print("*Activating algorithm 8.")
+            alg = alg10.Alg10Waveletr2dDecompL2()
         case _:
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()

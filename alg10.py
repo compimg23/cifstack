@@ -10,7 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 
-class Alg10Waveletr2dDecomp(object):
+class Alg10Waveletr2dDecompL2(object):
     def startAlg(self, image_files, alignMethod):
         print("Algorithm10 (wavelet using pywt.wavedec2 method - 2 levels) starting.")
         print('image files', image_files)
@@ -85,8 +85,10 @@ class Alg10Waveletr2dDecomp(object):
                     print("wdecompgimgshape",wdecompgimg.shape)
                     w_level = 2
                     coeffs = pywt.wavedec2(imggray, waveletchoice, level=w_level)
+                    print("lencoeffs",len(coeffs))
                     # wdecompgimg = cv2.cvtColor(wdecompgimg, cv2.COLOR_BGR2GRAY)
                     focal_coeffs = pywt.wavedec2(wdecompgimg, waveletchoice, level=w_level)
+                    print("lenfocal_coeffs",len(focal_coeffs))
                     # fused_coeffs = [np.maximum(focal_c, img_c) for focal_c, img_c in zip(focal_coeffs, coeffs)]
                     # fused_coeffs0 = [np.maximum(focal_c, img_c) for focal_c, img_c in zip(focal_coeffs[0], coeffs[0])]
                     # fused_coeffs1 = [np.maximum(focal_c, img_c) for focal_c, img_c in zip(focal_coeffs[1][0], coeffs[1][0])]
@@ -102,16 +104,21 @@ class Alg10Waveletr2dDecomp(object):
                     bool_coeffs10 = fused_coeffs4comp[1][0] == np.abs(focal_coeffs[1][0])
                     bool_coeffs11 = fused_coeffs4comp[1][1] == np.abs(focal_coeffs[1][1])
                     bool_coeffs12 = fused_coeffs4comp[1][2] == np.abs(focal_coeffs[1][2])
+                    bool_coeffs20 = fused_coeffs4comp[2][0] == np.abs(focal_coeffs[2][0])
+                    bool_coeffs21 = fused_coeffs4comp[2][1] == np.abs(focal_coeffs[2][1])
+                    bool_coeffs22 = fused_coeffs4comp[2][2] == np.abs(focal_coeffs[2][2])
                     # print("bool_coeffs10", bool_coeffs10)
                     # fused_coeffs = fused_coeffs0, (fused_coeffs1, fused_coeffs2, fused_coeffs3)
                     # fused_coeffs = fused_coeffs[0], (fused_coeffs[1][0], fused_coeffs[1][1], fused_coeffs[1][2])
-                    fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
+                    fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2])), \
+                    (np.where(bool_coeffs20, focal_coeffs[2][0], coeffs[2][0]), np.where(bool_coeffs21, focal_coeffs[2][1], coeffs[2][1]), np.where(bool_coeffs22, focal_coeffs[2][2], coeffs[2][2]))
                     # print("coeffs", coeffs)
                     # print("fusedcoeffs", fused_coeffs)
                     # print("coeffslen", len(coeffs))
                     # print("focallen",len(focal_coeffs))
                     # print("fusedlen", len(fused_coeffs))
 
+                    print("lenfused_coeffs",len(fused_coeffs))
                     wdecompgimg = pywt.waverec2(fused_coeffs, waveletchoice)
                     altname = 'OutputFolder/newdwt_l2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     print("Saving alternate recomposition...")
