@@ -113,7 +113,7 @@ class Alg9Waveletr2dDecompL1(object):
                     # print("fusedlen", len(fused_coeffs))
 
                     wdecompgimg = pywt.waverec2(fused_coeffs, waveletchoice)
-                    altname = 'OutputFolder/newdwtv2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+                    altname = 'OutputFolder/newdwtv3_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     cv2.imwrite(altname, wdecompgimg)
                     #END ALTERNATE DECOMP
 
@@ -182,6 +182,7 @@ class Alg9Waveletr2dDecompL1(object):
         bool_coeffs12 = fused_coeffs4comp[1][2] == np.abs(focal_coeffs[1][2])
         # replace low pass choice with majority vote.
         bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
+        bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
         # print('bool_coeffs0.shape:', bool_coeffs0.shape)
         # print('bool_coeffs10.shape:', bool_coeffs10.shape)
         # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
