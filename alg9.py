@@ -180,6 +180,12 @@ class Alg9Waveletr2dDecompL1(object):
         bool_coeffs10 = fused_coeffs4comp[1][0] == np.abs(focal_coeffs[1][0])
         bool_coeffs11 = fused_coeffs4comp[1][1] == np.abs(focal_coeffs[1][1])
         bool_coeffs12 = fused_coeffs4comp[1][2] == np.abs(focal_coeffs[1][2])
+        # replace low pass choice with majority vote.
+        bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
+        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
+        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
+        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
+        # print('bool0:', bool_coeffs0)
         fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
         return fused_coeffs
     
