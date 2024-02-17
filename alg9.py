@@ -105,6 +105,7 @@ class Alg9Waveletr2dDecompL1(object):
                     # fused_coeffs = fused_coeffs0, (fused_coeffs1, fused_coeffs2, fused_coeffs3)
                     # fused_coeffs = fused_coeffs[0], (fused_coeffs[1][0], fused_coeffs[1][1], fused_coeffs[1][2])
                     fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
+                    fused_coeffs = self.channel_decomp_wavedec(imggray, wdecompgimg, waveletchoice)
                     # print("coeffs", coeffs)
                     # print("fusedcoeffs", fused_coeffs)
                     # print("coeffslen", len(coeffs))
@@ -112,7 +113,7 @@ class Alg9Waveletr2dDecompL1(object):
                     # print("fusedlen", len(fused_coeffs))
 
                     wdecompgimg = pywt.waverec2(fused_coeffs, waveletchoice)
-                    altname = 'OutputFolder/newdwt_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+                    altname = 'OutputFolder/newdwtv2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     cv2.imwrite(altname, wdecompgimg)
                     #END ALTERNATE DECOMP
 
@@ -170,7 +171,18 @@ class Alg9Waveletr2dDecompL1(object):
     
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
-
+    
+    def channel_decomp_wavedec(self, currimggray, progressimggray, waveletchoice):
+        coeffs = pywt.wavedec2(currimggray, waveletchoice, level=1)
+        focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=1)
+        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
+        bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
+        bool_coeffs10 = fused_coeffs4comp[1][0] == np.abs(focal_coeffs[1][0])
+        bool_coeffs11 = fused_coeffs4comp[1][1] == np.abs(focal_coeffs[1][1])
+        bool_coeffs12 = fused_coeffs4comp[1][2] == np.abs(focal_coeffs[1][2])
+        fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
+        return fused_coeffs
+    
     def combine_decomps(self, newdecompx, currdecomp):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         boolMat = np.abs(newdecompx[1][0]) + np.abs(newdecompx[1][1]) + np.abs(newdecompx[1][2]) > \
