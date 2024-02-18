@@ -122,7 +122,7 @@ class Alg10Waveletr2dDecompL2(object):
 
                     print("lenfused_coeffs",len(fused_coeffs))
                     wdecompgimg = pywt.waverec2(fused_coeffs, waveletchoice)
-                    altname = 'OutputFolder/newdwt_v2_l2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+                    altname = 'OutputFolder/newdwt_v5_l2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     print("Saving alternate recomposition...")
                     cv2.imwrite(altname, wdecompgimg)
                     print('Alt Recomposition saved in ' + altname)
@@ -190,21 +190,37 @@ class Alg10Waveletr2dDecompL2(object):
         num_high_tuples = len(coeffs)
         highpass_sum = 0
         focal_highpass_sum = 0
+        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
+        boolcoeffs = []
+        fusedcoeffs = [focal_coeffs[0]]
+        focalhighsum = 0
+        fusedhighsum = 0
         for i in range(1, num_high_tuples):
-            fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
-            focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-            highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
+            # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
+            bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
+            bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
+            bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
+            focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+            fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
+            # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
+            fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2])))
+
+            # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
+            # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+            # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
+
+        bool_coeffs0 = focalhighsum >= fusedhighsum
+        fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0])
         # # replace low pass choice with majority vote.
         # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
         # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
-        bool_coeffs0 = focal_highpass_sum >= highpass_sum
+        # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
         # print('bool_coeffs0.shape:', bool_coeffs0.shape)
         # print('bool_coeffs10.shape:', bool_coeffs10.shape)
         # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
         # print('bool0:', bool_coeffs0)
         # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
-        fused_coeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0])
-        return fused_coeffs
+        return fusedcoeffs
 
     def channel_decomp_high_sum(self, coeffs, focal_coeffs):
         fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
