@@ -122,7 +122,8 @@ class Alg10Waveletr2dDecompL2(object):
 
                     print("lenfused_coeffs",len(fused_coeffs))
                     wdecompgimg = pywt.waverec2(fused_coeffs, waveletchoice)
-                    altname = 'OutputFolder/newdwt_v17_l2_multi' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+                    versionnum = 31
+                    altname = 'OutputFolder/newdwt_v' + str(versionnum) + '_l2_multi' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     print("Saving alternate recomposition...")
                     cv2.imwrite(altname, wdecompgimg)
                     print('Alt Recomposition saved in ' + altname)
@@ -210,7 +211,7 @@ class Alg10Waveletr2dDecompL2(object):
         focalhighsum = 0
         fusedhighsum = 0
         for i in range(1, num_high_tuples):
-            print("I",i)
+            # print("I",i)
             # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
             bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
             bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
