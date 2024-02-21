@@ -259,6 +259,60 @@ class Alg10Waveletr2dDecompL2(object):
         focalhighsum = 0
         fusedhighsum = 0
         for i in range(1, num_high_tuples):
+            # # ORIG LOOP
+            # # print("I",i)
+            # # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
+            # bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
+            # bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
+            # bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
+            # if i == 1:
+            #     focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+            #     fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
+            # # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
+            # fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[i][0], coeffs[i][0]), np.where(bool_coeffs11, focal_coeffs[i][1], coeffs[i][1]), np.where(bool_coeffs12, focal_coeffs[i][2], coeffs[i][2])))
+            # # END ORIG LOOP
+            combinedecomps = self.combine_decomps_nolow(focal_coeffs[i], coeffs[i])
+            fusedcoeffs.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
+
+            # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
+            # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+            # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
+
+        # print('bool_coeffs0.shape', bool_coeffs0.shape)
+        # print('focal_coeffs[0].shape', focal_coeffs[0].shape)
+        # if wavelevel == 1:
+        #     print("WAVELEVEL2")
+        #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
+
+        # bool_coeffs0 = focalhighsum >= fusedhighsum # PREV APPROACH
+        # fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote # PREV APPROACH
+        lastleveldecomp = self.combine_decomps((focal_coeffs[0], focal_coeffs[1]), (coeffs[0], coeffs[1]))
+        fusedcoeffs[0] = lastleveldecomp[0]
+        # # replace low pass choice with majority vote.
+        # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
+        # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
+        # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
+        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
+        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
+        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
+        # print('bool0:', bool_coeffs0)
+        # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
+        return fusedcoeffs
+
+    def channel_decomp_wavedec_OLD(self, currimggray, progressimggray, waveletchoice, wavelevel):
+        # wavelevel = 2
+        coeffs = pywt.wavedec2(currimggray, waveletchoice, level=wavelevel)
+        focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=wavelevel)
+        fused_coeffs = focal_coeffs.copy()
+        num_high_tuples = len(coeffs)
+        highpass_sum = 0
+        focal_highpass_sum = 0
+        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
+        boolcoeffs = []
+        fusedcoeffs = [focal_coeffs[0]]
+        focalhighsum = 0
+        fusedhighsum = 0
+        for i in range(1, num_high_tuples):
             # print("I",i)
             # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
             bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
@@ -308,6 +362,23 @@ class Alg10Waveletr2dDecompL2(object):
         # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
         fused_coeffs = (np.where(bool_coeffs10, focal_coeffs[0], coeffs[0]), np.where(bool_coeffs11, focal_coeffs[1], coeffs[1]), np.where(bool_coeffs12, focal_coeffs[2], coeffs[2]))
         return fused_coeffs
+
+    def combine_decomps_nolow(self, newdecompx, currdecomp):
+        # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
+        boolMat = np.abs(newdecompx[0]) + np.abs(newdecompx[1]) + np.abs(newdecompx[2]) > \
+                         np.abs(currdecomp[0]) + np.abs(currdecomp[1]) + np.abs(currdecomp[2])
+        # copy pixel values for all four subbands according to boolean matrix.
+        # newdecompx0 = np.where(boolMat,
+        #         newdecompx[0], currdecomp[0])
+        newdecompx10 = np.where(boolMat,
+            newdecompx[0], currdecomp[0])
+        newdecompx11 = np.where(boolMat,
+            newdecompx[1], currdecomp[1])
+        newdecompx12 = np.where(boolMat,
+            newdecompx[2], currdecomp[2])
+        # newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
+        newdecompx = (newdecompx10, newdecompx11, newdecompx12)
+        return newdecompx
 
     def combine_decomps(self, newdecompx, currdecomp):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
