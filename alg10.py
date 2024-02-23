@@ -35,8 +35,8 @@ class Alg10Waveletr2dDecompL2(object):
             # for waveletchoice in pywt.wavelist(family):
             print('wavelist', pywt.wavelist(family))
             for waveletchoice1 in pywt.wavelist(family):
-                w_mainlevel = 8
-                waveletchoice = 'haar'
+                w_mainlevel = 1
+                waveletchoice = 'bior6.8'
                 print('waveletchoice', waveletchoice)
                 firstimg = img_mats[0]
                 decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
@@ -378,7 +378,7 @@ class Alg10Waveletr2dDecompL2(object):
             newdecompx[2], currdecomp[2])
         # newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
         newdecompx = (newdecompx10, newdecompx11, newdecompx12)
-        return newdecompx
+        return newdecompx, boolMat
 
     def combine_decomps(self, newdecompx, currdecomp):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
@@ -394,7 +394,34 @@ class Alg10Waveletr2dDecompL2(object):
         newdecompx12 = np.where(boolMat,
             newdecompx[1][2], currdecomp[1][2])
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
-        return newdecompx
+        return newdecompx, boolMat
+
+    def combine_decomps_gray_nolow(self, newdecompx, newdecompg, currdecomp, currdecompg):
+        # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
+        boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \
+                         np.abs(currdecompg[1][0]) + np.abs(currdecompg[1][1]) + np.abs(currdecompg[1][2])
+        # copy pixel values for all four subbands according to boolean matrix.
+        # newdecompx0 = np.where(boolMat,
+        #         newdecompx[0], currdecomp[0])
+        newdecompx10 = np.where(boolMat,
+            newdecompx[1][0], currdecomp[1][0])
+        newdecompx11 = np.where(boolMat,
+            newdecompx[1][1], currdecomp[1][1])
+        newdecompx12 = np.where(boolMat,
+            newdecompx[1][2], currdecomp[1][2])
+        newdecompx = (newdecompx10, newdecompx11, newdecompx12)
+
+        # newdecompg0 = np.where(boolMat,
+        #         newdecompg[0], currdecompg[0])
+        newdecompg10 = np.where(boolMat,
+            newdecompg[1][0], currdecompg[1][0])
+        newdecompg11 = np.where(boolMat,
+            newdecompg[1][1], currdecompg[1][1])
+        newdecompg12 = np.where(boolMat,
+            newdecompg[1][2], currdecompg[1][2])
+        newdecompg = (newdecompg10, newdecompg11, newdecompg12)
+
+        return newdecompx, newdecompg
 
     def combine_decomps_gray(self, newdecompx, newdecompg, currdecomp, currdecompg):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
