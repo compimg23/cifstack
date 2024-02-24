@@ -106,13 +106,19 @@ class Alg10Waveletr2dDecompL2(object):
                     newdecompimg1 = pywt.waverec2(newdecomp1, waveletchoice, mode='symmetric')
                     newdecompimg2 = pywt.waverec2(newdecomp2, waveletchoice, mode='symmetric')
                     newdecompimg3 = pywt.waverec2(newdecomp3, waveletchoice, mode='symmetric')
+                    newdecompimg = np.zeros((newdecompimg1.shape[0], newdecompimg1.shape[1], 3))
+                    newdecompimg[:,:,0] = newdecompimg1
+                    newdecompimg[:,:,1] = newdecompimg2
+                    newdecompimg[:,:,2] = newdecompimg3
                     # print('currimg.shape', currimg.shape)
                     # print('newdecompimg1.shape', newdecompimg1.shape)
                     print("Performing pointwise maximum comparison")
-                    newdecompg = self.channel_decomp_multilevel(imggray, wdecompgimg, waveletchoice, w_mainlevel)
-                    newdecomp1 = self.channel_decomp_multilevel(newdecompimg1, currimg[:,:,0], waveletchoice, w_mainlevel)
-                    newdecomp2 = self.channel_decomp_multilevel(newdecompimg2, currimg[:,:,1], waveletchoice, w_mainlevel)
-                    newdecomp3 = self.channel_decomp_multilevel(newdecompimg3, currimg[:,:,2], waveletchoice, w_mainlevel)
+                    # newdecompg = self.channel_decomp_multilevel(imggray, wdecompgimg, waveletchoice, w_mainlevel)
+                    # newdecomp1 = self.channel_decomp_multilevel(newdecompimg1, currimg[:,:,0], waveletchoice, w_mainlevel)
+                    # newdecomp2 = self.channel_decomp_multilevel(newdecompimg2, currimg[:,:,1], waveletchoice, w_mainlevel)
+                    # newdecomp3 = self.channel_decomp_multilevel(newdecompimg3, currimg[:,:,2], waveletchoice, w_mainlevel)
+
+                    newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg, newdecompimg, imggray, wdecompgimg, waveletchoice, w_mainlevel)
                     #END NEW MULTILEVEL DECOMP
                     
                     # #ALTERNATE DECOMP
@@ -177,6 +183,8 @@ class Alg10Waveletr2dDecompL2(object):
 
                     # NEW RECOMP
                     # Why is gray shape different from color channel shapes?
+                    print("recg",newdecompg[0].shape)
+                    print("rec0", newdecomp1[0].shape)
                     recompimggray[:,:] = pywt.waverec2(newdecompg, waveletchoice, mode='symmetric')[0:recompimggray.shape[0],0:recompimggray.shape[1]]
                     recompimg[:,:,0] = pywt.waverec2(newdecomp1, waveletchoice, mode='symmetric')[0:recompimg.shape[0],0:recompimg.shape[1]]
                     recompimg[:,:,1] = pywt.waverec2(newdecomp2, waveletchoice, mode='symmetric')[0:recompimg.shape[0],0:recompimg.shape[1]]
@@ -184,13 +192,13 @@ class Alg10Waveletr2dDecompL2(object):
                     # END NEW RECOMP
 
                     # im1 = Image.fromarray((recompimg))
-                    recompname = 'OutputFolder/dwt_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+                    recompname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
                     print('Saving recomposition')
                     # im1.save(recompname)
                     cv2.imwrite(recompname, recompimg)
                     print('Recomposition saved in ' + recompname)
 
-                    recompgrayname = 'OutputFolder/dwt_' + waveletchoice + '_recomp_gray' + str(j) + '.jpg'
+                    recompgrayname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_gray' + str(j) + '.jpg'
                     print('Saving recomposition')
                     # im1.save(recompname)
                     cv2.imwrite(recompgrayname, recompimggray)
@@ -244,146 +252,103 @@ class Alg10Waveletr2dDecompL2(object):
         fusedleveldecomp = pywt.wavedec2(fusedlevelimg, waveletchoice, level=wavelevel)
         return fusedleveldecomp
         
+    def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, waveletchoice, wavelevel):
+        fusedlevelimg = currimg.copy()
+        fusedlevelgrayimg = currgrayimg.copy()
+        # curr_coeffs = pywt.wavedec2(currimg, waveletchoice, level=wavelevel)
+        # progress_coeffs = pywt.wavedec2(progressimg, waveletchoice, level=wavelevel)
+        # curr_graycoeffs = pywt.wavedec2(currgrayimg, waveletchoice, level=wavelevel)
+        # progress_graycoeffs = pywt.wavedec2(progressgrayimg, waveletchoice, level=wavelevel)
+        for looplevel in range(wavelevel,0,-1):
+        # for looplevel in range(1, wavelevel+1):
+            fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
+            fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)
+            fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)
+            fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)
+            print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
+            print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
+            fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
 
-    def channel_decomp_wavedec(self, currimggray, progressimggray, waveletchoice, wavelevel):
-        # wavelevel = 2
-        coeffs = pywt.wavedec2(currimggray, waveletchoice, level=wavelevel)
-        focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=wavelevel)
-        fused_coeffs = focal_coeffs.copy()
-        num_high_tuples = len(coeffs)
-        highpass_sum = 0
-        focal_highpass_sum = 0
-        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
-        boolcoeffs = []
-        fusedcoeffs = [focal_coeffs[0]]
-        focalhighsum = 0
-        fusedhighsum = 0
+        # fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, wavelevel);
+        fusedleveldecomp0 = pywt.wavedec2(fusedlevelimg[:,:,0], waveletchoice, level=wavelevel)
+        fusedleveldecomp1 = pywt.wavedec2(fusedlevelimg[:,:,1], waveletchoice, level=wavelevel)
+        fusedleveldecomp2 = pywt.wavedec2(fusedlevelimg[:,:,2], waveletchoice, level=wavelevel)
+        fusedlevelgraydecomp = pywt.wavedec2(fusedlevelgrayimg, waveletchoice, level=wavelevel)
+        return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
+        
+    def channel_decomp_wavedec_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, waveletchoice, wavelevel):
+        curr_coeffs0 = pywt.wavedec2(currimg[:,:,0], waveletchoice, level=wavelevel)
+        curr_coeffs1 = pywt.wavedec2(currimg[:,:,1], waveletchoice, level=wavelevel)
+        curr_coeffs2 = pywt.wavedec2(currimg[:,:,2], waveletchoice, level=wavelevel)
+        progress_coeffs0 = pywt.wavedec2(progressimg[:,:,0], waveletchoice, level=wavelevel)
+        progress_coeffs1 = pywt.wavedec2(progressimg[:,:,1], waveletchoice, level=wavelevel)
+        progress_coeffs2 = pywt.wavedec2(progressimg[:,:,2], waveletchoice, level=wavelevel)
+        curr_graycoeffs = pywt.wavedec2(currgrayimg, waveletchoice, level=wavelevel)
+        progress_graycoeffs = pywt.wavedec2(progressgrayimg, waveletchoice, level=wavelevel)
+        num_high_tuples = len(curr_coeffs0)
+        # Init fused coeffs with LL subband, will be replaced at end.
+        fusedcoeffs0 = [progress_coeffs0[0]]
+        fusedcoeffs1 = [progress_coeffs1[0]]
+        fusedcoeffs2 = [progress_coeffs2[0]]
+        fusedgraycoeffs = [progress_graycoeffs[0]]
         for i in range(1, num_high_tuples):
-            # # ORIG LOOP
-            # # print("I",i)
-            # # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
-            # bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
-            # bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
-            # bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
-            # if i == 1:
-            #     focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-            #     fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
-            # # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
-            # fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[i][0], coeffs[i][0]), np.where(bool_coeffs11, focal_coeffs[i][1], coeffs[i][1]), np.where(bool_coeffs12, focal_coeffs[i][2], coeffs[i][2])))
-            # # END ORIG LOOP
-            combinedecomps = self.combine_decomps_nolow(focal_coeffs[i], coeffs[i])
-            fusedcoeffs.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
+            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            fusedcoeffs0.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
+            fusedcoeffs1.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
+            fusedcoeffs2.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
+            print('combinedecomps.shape', combinedecomps[0].shape)
+            print('combinedgraydecomps.shape', combinedgraydecomps[0].shape)
+            fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2]))
 
-            # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
-            # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-            # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
-
-        # print('bool_coeffs0.shape', bool_coeffs0.shape)
-        # print('focal_coeffs[0].shape', focal_coeffs[0].shape)
-        # if wavelevel == 1:
-        #     print("WAVELEVEL2")
-        #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
-
-        # bool_coeffs0 = focalhighsum >= fusedhighsum # PREV APPROACH
-        # fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote # PREV APPROACH
-        lastleveldecomp = self.combine_decomps((focal_coeffs[0], focal_coeffs[1]), (coeffs[0], coeffs[1]))
-        fusedcoeffs[0] = lastleveldecomp[0]
-        # # replace low pass choice with majority vote.
-        # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
-        # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
-        # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
-        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
-        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
-        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
-        # print('bool0:', bool_coeffs0)
-        # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
-        return fusedcoeffs
-
-    def channel_decomp_wavedec_OLD(self, currimggray, progressimggray, waveletchoice, wavelevel):
-        # wavelevel = 2
-        coeffs = pywt.wavedec2(currimggray, waveletchoice, level=wavelevel)
-        focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=wavelevel)
-        fused_coeffs = focal_coeffs.copy()
-        num_high_tuples = len(coeffs)
-        highpass_sum = 0
-        focal_highpass_sum = 0
-        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
-        boolcoeffs = []
-        fusedcoeffs = [focal_coeffs[0]]
-        focalhighsum = 0
-        fusedhighsum = 0
-        for i in range(1, num_high_tuples):
-            # print("I",i)
-            # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
-            bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
-            bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
-            bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
-            if i == 1:
-                focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-                fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
-            # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
-            fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[i][0], coeffs[i][0]), np.where(bool_coeffs11, focal_coeffs[i][1], coeffs[i][1]), np.where(bool_coeffs12, focal_coeffs[i][2], coeffs[i][2])))
-
-            # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
-            # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-            # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
-
-        bool_coeffs0 = focalhighsum >= fusedhighsum
-        # print('bool_coeffs0.shape', bool_coeffs0.shape)
-        # print('focal_coeffs[0].shape', focal_coeffs[0].shape)
-        # if wavelevel == 1:
-        #     print("WAVELEVEL2")
-        #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
-
-        fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
-        # # replace low pass choice with majority vote.
-        # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
-        # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
-        # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
-        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
-        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
-        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
-        # print('bool0:', bool_coeffs0)
-        # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
-        return fusedcoeffs
-
-    def channel_decomp_high_sum(self, coeffs, focal_coeffs):
-        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
-        bool_coeffs10 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
-        bool_coeffs11 = fused_coeffs4comp[1] == np.abs(focal_coeffs[1])
-        bool_coeffs12 = fused_coeffs4comp[2] == np.abs(focal_coeffs[2])
-        # replace low pass choice with majority vote.
-        # highpass_sum += sum([bool_coeffs10, bool_coeffs11, bool_coeffs12])
-        # bool_coeffs0 = np.abs(focal_coeffs[0]) + np.abs(focal_coeffs[1]) + np.abs(focal_coeffs[2]) >= fused_coeffs4comp[0] + fused_coeffs4comp[1] + fused_coeffs4comp[2]
-        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
-        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
-        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
-        # print('bool0:', bool_coeffs0)
-        # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
-        fused_coeffs = (np.where(bool_coeffs10, focal_coeffs[0], coeffs[0]), np.where(bool_coeffs11, focal_coeffs[1], coeffs[1]), np.where(bool_coeffs12, focal_coeffs[2], coeffs[2]))
-        return fused_coeffs
-
-    def combine_decomps_nolow(self, newdecompx, currdecomp):
+        lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        lastleveldecomp1, lastlevelgraydecomp = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[1]), (progress_coeffs1[0], progress_coeffs1[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        lastleveldecomp2, lastlevelgraydecomp = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[1]), (progress_coeffs2[0], progress_coeffs2[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        fusedcoeffs0[0] = lastleveldecomp0[0]
+        fusedcoeffs1[0] = lastleveldecomp1[0]
+        fusedcoeffs2[0] = lastleveldecomp2[0]
+        fusedgraycoeffs[0] = lastlevelgraydecomp[0]
+        print('lastleveldecomp0[0]', lastleveldecomp0[0].shape)
+        print('lastlevelgraydecomp[0]', lastlevelgraydecomp[0].shape)
+        return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
+    
+    def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        boolMat = np.abs(newdecompx[0]) + np.abs(newdecompx[1]) + np.abs(newdecompx[2]) > \
-                         np.abs(currdecomp[0]) + np.abs(currdecomp[1]) + np.abs(currdecomp[2])
+        boolMat = np.abs(newgraydecompx[0]) + np.abs(newgraydecompx[1]) + np.abs(newgraydecompx[2]) > \
+                         np.abs(currgraydecomp[0]) + np.abs(currgraydecomp[1]) + np.abs(currgraydecomp[2])
         # copy pixel values for all four subbands according to boolean matrix.
         # newdecompx0 = np.where(boolMat,
         #         newdecompx[0], currdecomp[0])
+        print('newdecompx.shape', newdecompx[0].shape)
+        print('currdecomp.shape', currdecomp[0].shape)
+        print('newgraydecompx.shape', newgraydecompx[0].shape)
+        print('currgraydecomp.shape', currgraydecomp[0].shape)
+        print('boolMat.shape', boolMat.shape)
         newdecompx10 = np.where(boolMat,
             newdecompx[0], currdecomp[0])
         newdecompx11 = np.where(boolMat,
             newdecompx[1], currdecomp[1])
         newdecompx12 = np.where(boolMat,
             newdecompx[2], currdecomp[2])
-        # newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
+        
+        newgraydecompx10 = np.where(boolMat,
+            newgraydecompx[0], currgraydecomp[0])
+        newgraydecompx11 = np.where(boolMat,
+            newgraydecompx[1], currgraydecomp[1])
+        newgraydecompx12 = np.where(boolMat,
+            newgraydecompx[2], currgraydecomp[2])
+        
+        print('newdecompx10.shape', newdecompx10.shape)
+        print('newgraydecompx10.shape', newgraydecompx10.shape)
         newdecompx = (newdecompx10, newdecompx11, newdecompx12)
-        return newdecompx, boolMat
+        newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12)
+        return newdecompx, newgraydecompx
 
-    def combine_decomps(self, newdecompx, currdecomp):
+    def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        boolMat = np.abs(newdecompx[1][0]) + np.abs(newdecompx[1][1]) + np.abs(newdecompx[1][2]) > \
-                         np.abs(currdecomp[1][0]) + np.abs(currdecomp[1][1]) + np.abs(currdecomp[1][2])
+        boolMat = np.abs(newgraydecompx[1][0]) + np.abs(newgraydecompx[1][1]) + np.abs(newgraydecompx[1][2]) > \
+                         np.abs(currgraydecomp[1][0]) + np.abs(currgraydecomp[1][1]) + np.abs(currgraydecomp[1][2])
         # copy pixel values for all four subbands according to boolean matrix.
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0])
@@ -393,59 +358,70 @@ class Alg10Waveletr2dDecompL2(object):
             newdecompx[1][1], currdecomp[1][1])
         newdecompx12 = np.where(boolMat,
             newdecompx[1][2], currdecomp[1][2])
+        
+        newgraydecompx0 = np.where(boolMat,
+                newgraydecompx[0], currgraydecomp[0])
+        newgraydecompx10 = np.where(boolMat,
+            newgraydecompx[1][0], currgraydecomp[1][0])
+        newgraydecompx11 = np.where(boolMat,
+            newgraydecompx[1][1], currgraydecomp[1][1])
+        newgraydecompx12 = np.where(boolMat,
+            newgraydecompx[1][2], currgraydecomp[1][2])
+        
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
-        return newdecompx, boolMat
+        newgraydecompx = newgraydecompx0, (newgraydecompx10, newgraydecompx11, newgraydecompx12)
+        return newdecompx, newgraydecompx
 
-    def combine_decomps_gray_nolow(self, newdecompx, newdecompg, currdecomp, currdecompg):
-        # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \
-                         np.abs(currdecompg[1][0]) + np.abs(currdecompg[1][1]) + np.abs(currdecompg[1][2])
-        # copy pixel values for all four subbands according to boolean matrix.
-        # newdecompx0 = np.where(boolMat,
-        #         newdecompx[0], currdecomp[0])
-        newdecompx10 = np.where(boolMat,
-            newdecompx[1][0], currdecomp[1][0])
-        newdecompx11 = np.where(boolMat,
-            newdecompx[1][1], currdecomp[1][1])
-        newdecompx12 = np.where(boolMat,
-            newdecompx[1][2], currdecomp[1][2])
-        newdecompx = (newdecompx10, newdecompx11, newdecompx12)
+    # def combine_decomps_gray_nolow(self, newdecompx, newdecompg, currdecomp, currdecompg):
+    #     # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
+    #     boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \
+    #                      np.abs(currdecompg[1][0]) + np.abs(currdecompg[1][1]) + np.abs(currdecompg[1][2])
+    #     # copy pixel values for all four subbands according to boolean matrix.
+    #     # newdecompx0 = np.where(boolMat,
+    #     #         newdecompx[0], currdecomp[0])
+    #     newdecompx10 = np.where(boolMat,
+    #         newdecompx[1][0], currdecomp[1][0])
+    #     newdecompx11 = np.where(boolMat,
+    #         newdecompx[1][1], currdecomp[1][1])
+    #     newdecompx12 = np.where(boolMat,
+    #         newdecompx[1][2], currdecomp[1][2])
+    #     newdecompx = (newdecompx10, newdecompx11, newdecompx12)
 
-        # newdecompg0 = np.where(boolMat,
-        #         newdecompg[0], currdecompg[0])
-        newdecompg10 = np.where(boolMat,
-            newdecompg[1][0], currdecompg[1][0])
-        newdecompg11 = np.where(boolMat,
-            newdecompg[1][1], currdecompg[1][1])
-        newdecompg12 = np.where(boolMat,
-            newdecompg[1][2], currdecompg[1][2])
-        newdecompg = (newdecompg10, newdecompg11, newdecompg12)
+    #     # newdecompg0 = np.where(boolMat,
+    #     #         newdecompg[0], currdecompg[0])
+    #     newdecompg10 = np.where(boolMat,
+    #         newdecompg[1][0], currdecompg[1][0])
+    #     newdecompg11 = np.where(boolMat,
+    #         newdecompg[1][1], currdecompg[1][1])
+    #     newdecompg12 = np.where(boolMat,
+    #         newdecompg[1][2], currdecompg[1][2])
+    #     newdecompg = (newdecompg10, newdecompg11, newdecompg12)
 
-        return newdecompx, newdecompg
+    #     return newdecompx, newdecompg
 
-    def combine_decomps_gray(self, newdecompx, newdecompg, currdecomp, currdecompg):
-        # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \
-                         np.abs(currdecompg[1][0]) + np.abs(currdecompg[1][1]) + np.abs(currdecompg[1][2])
-        # copy pixel values for all four subbands according to boolean matrix.
-        newdecompx0 = np.where(boolMat,
-                newdecompx[0], currdecomp[0])
-        newdecompx10 = np.where(boolMat,
-            newdecompx[1][0], currdecomp[1][0])
-        newdecompx11 = np.where(boolMat,
-            newdecompx[1][1], currdecomp[1][1])
-        newdecompx12 = np.where(boolMat,
-            newdecompx[1][2], currdecomp[1][2])
-        newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
+    # def combine_decomps_gray(self, newdecompx, newdecompg, currdecomp, currdecompg):
+    #     # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
+    #     boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \
+    #                      np.abs(currdecompg[1][0]) + np.abs(currdecompg[1][1]) + np.abs(currdecompg[1][2])
+    #     # copy pixel values for all four subbands according to boolean matrix.
+    #     newdecompx0 = np.where(boolMat,
+    #             newdecompx[0], currdecomp[0])
+    #     newdecompx10 = np.where(boolMat,
+    #         newdecompx[1][0], currdecomp[1][0])
+    #     newdecompx11 = np.where(boolMat,
+    #         newdecompx[1][1], currdecomp[1][1])
+    #     newdecompx12 = np.where(boolMat,
+    #         newdecompx[1][2], currdecomp[1][2])
+    #     newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
 
-        newdecompg0 = np.where(boolMat,
-                newdecompg[0], currdecompg[0])
-        newdecompg10 = np.where(boolMat,
-            newdecompg[1][0], currdecompg[1][0])
-        newdecompg11 = np.where(boolMat,
-            newdecompg[1][1], currdecompg[1][1])
-        newdecompg12 = np.where(boolMat,
-            newdecompg[1][2], currdecompg[1][2])
-        newdecompg = newdecompg0, (newdecompg10, newdecompg11, newdecompg12)
+    #     newdecompg0 = np.where(boolMat,
+    #             newdecompg[0], currdecompg[0])
+    #     newdecompg10 = np.where(boolMat,
+    #         newdecompg[1][0], currdecompg[1][0])
+    #     newdecompg11 = np.where(boolMat,
+    #         newdecompg[1][1], currdecompg[1][1])
+    #     newdecompg12 = np.where(boolMat,
+    #         newdecompg[1][2], currdecompg[1][2])
+    #     newdecompg = newdecompg0, (newdecompg10, newdecompg11, newdecompg12)
 
-        return newdecompx, newdecompg
+    #     return newdecompx, newdecompg
