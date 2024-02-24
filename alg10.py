@@ -36,7 +36,7 @@ class Alg10Waveletr2dDecompL2(object):
             print('wavelist', pywt.wavelist(family))
             for waveletchoice1 in pywt.wavelist(family):
                 w_mainlevel = 1
-                waveletchoice = 'bior6.8'
+                waveletchoice = 'haar'
                 print('waveletchoice', waveletchoice)
                 firstimg = img_mats[0]
                 decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
@@ -47,12 +47,14 @@ class Alg10Waveletr2dDecompL2(object):
                 decomp3 = pywt.wavedec2(firstimg[:,:,2], waveletchoice, level=w_mainlevel)
                 newdecompg = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
                 wdecompgimg = cv2.cvtColor(img_mats[0], cv2.COLOR_BGR2GRAY)
-                newdecomp1 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
-                newdecomp2 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
-                newdecomp3 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
+                newdecompg = pywt.wavedec2(wdecompgimg, waveletchoice, level=w_mainlevel)
+                # newdecomp1 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
+                # newdecomp2 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
+                # newdecomp3 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
                 newdecomp1 = decomp1
                 newdecomp2 = decomp2
                 newdecomp3 = decomp3
+                newdecompimg = firstimg.copy()
                 for j in range(num_files):
                     currimg = img_mats[j]
                     print("firstimg shape", firstimg.shape)
@@ -60,24 +62,24 @@ class Alg10Waveletr2dDecompL2(object):
 
                     imggray = cv2.cvtColor(currimg, cv2.COLOR_BGR2GRAY)
                     
-                    decompgray = pywt.dwt2(imggray, waveletchoice, mode='per')
+                    # decompgray = pywt.dwt2(imggray, waveletchoice, mode='per')
 
-                    decomp1 = pywt.dwt2(currimg[:,:,0], waveletchoice, mode='per')
-                    decomp2 = pywt.dwt2(currimg[:,:,1], waveletchoice, mode='per')
-                    decomp3 = pywt.dwt2(currimg[:,:,2], waveletchoice, mode='per')
+                    # decomp1 = pywt.dwt2(currimg[:,:,0], waveletchoice, mode='per')
+                    # decomp2 = pywt.dwt2(currimg[:,:,1], waveletchoice, mode='per')
+                    # decomp3 = pywt.dwt2(currimg[:,:,2], waveletchoice, mode='per')
 
-                    decomp1 = pywt.wavedec2(currimg[:,:,0], waveletchoice, w_mainlevel)
-                    decomp2 = pywt.wavedec2(currimg[:,:,1], waveletchoice, w_mainlevel)
-                    decomp3 = pywt.wavedec2(currimg[:,:,2], waveletchoice, w_mainlevel)
+                    # decomp1 = pywt.wavedec2(currimg[:,:,0], waveletchoice, w_mainlevel)
+                    # decomp2 = pywt.wavedec2(currimg[:,:,1], waveletchoice, w_mainlevel)
+                    # decomp3 = pywt.wavedec2(currimg[:,:,2], waveletchoice, w_mainlevel)
 
-                    curr_rec1 = pywt.waverec2(decomp1, waveletchoice, mode='symmetric')
-                    curr_rec2 = pywt.waverec2(decomp2, waveletchoice, mode='symmetric')
-                    curr_rec3 = pywt.waverec2(decomp3, waveletchoice, mode='symmetric')
+                    # curr_rec1 = pywt.waverec2(decomp1, waveletchoice, mode='symmetric')
+                    # curr_rec2 = pywt.waverec2(decomp2, waveletchoice, mode='symmetric')
+                    # curr_rec3 = pywt.waverec2(decomp3, waveletchoice, mode='symmetric')
                     
-                    currimg = np.zeros((curr_rec1.shape[0], curr_rec1.shape[1], 3))
-                    currimg[:,:,0] = curr_rec1
-                    currimg[:,:,1] = curr_rec2
-                    currimg[:,:,2] = curr_rec3
+                    # currimg = np.zeros((curr_rec1.shape[0], curr_rec1.shape[1], 3))
+                    # currimg[:,:,0] = curr_rec1
+                    # currimg[:,:,1] = curr_rec2
+                    # currimg[:,:,2] = curr_rec3
 
                     # LLg, (LHg, HLg, HHg) = decompgray
 
@@ -102,14 +104,14 @@ class Alg10Waveletr2dDecompL2(object):
                     # #END PREVIOUS 1-LEVEL DECOMP
 
                     #NEW MULTILEVEL DECOMP
-                    print("Recompositing progress decomposition of current iteration...")
-                    newdecompimg1 = pywt.waverec2(newdecomp1, waveletchoice, mode='symmetric')
-                    newdecompimg2 = pywt.waverec2(newdecomp2, waveletchoice, mode='symmetric')
-                    newdecompimg3 = pywt.waverec2(newdecomp3, waveletchoice, mode='symmetric')
-                    newdecompimg = np.zeros((newdecompimg1.shape[0], newdecompimg1.shape[1], 3))
-                    newdecompimg[:,:,0] = newdecompimg1
-                    newdecompimg[:,:,1] = newdecompimg2
-                    newdecompimg[:,:,2] = newdecompimg3
+                    # print("Recompositing progress decomposition of current iteration...")
+                    # newdecompimg1 = pywt.waverec2(newdecomp1, waveletchoice, mode='symmetric')
+                    # newdecompimg2 = pywt.waverec2(newdecomp2, waveletchoice, mode='symmetric')
+                    # newdecompimg3 = pywt.waverec2(newdecomp3, waveletchoice, mode='symmetric')
+                    # newdecompimg = np.zeros((newdecompimg1.shape[0], newdecompimg1.shape[1], 3))
+                    # newdecompimg[:,:,0] = newdecompimg1
+                    # newdecompimg[:,:,1] = newdecompimg2
+                    # newdecompimg[:,:,2] = newdecompimg3
                     # print('currimg.shape', currimg.shape)
                     # print('newdecompimg1.shape', newdecompimg1.shape)
                     print("Performing pointwise maximum comparison")
@@ -118,7 +120,7 @@ class Alg10Waveletr2dDecompL2(object):
                     # newdecomp2 = self.channel_decomp_multilevel(newdecompimg2, currimg[:,:,1], waveletchoice, w_mainlevel)
                     # newdecomp3 = self.channel_decomp_multilevel(newdecompimg3, currimg[:,:,2], waveletchoice, w_mainlevel)
 
-                    newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg, newdecompimg, imggray, wdecompgimg, waveletchoice, w_mainlevel)
+                    newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg.copy(), newdecompimg.copy(), imggray.copy(), wdecompgimg.copy(), waveletchoice, w_mainlevel)
                     #END NEW MULTILEVEL DECOMP
                     
                     # #ALTERNATE DECOMP
@@ -185,10 +187,14 @@ class Alg10Waveletr2dDecompL2(object):
                     # Why is gray shape different from color channel shapes?
                     print("recg",newdecompg[0].shape)
                     print("rec0", newdecomp1[0].shape)
+                    print("Recompositing current image from deocmpositions.")
                     recompimggray[:,:] = pywt.waverec2(newdecompg, waveletchoice, mode='symmetric')[0:recompimggray.shape[0],0:recompimggray.shape[1]]
                     recompimg[:,:,0] = pywt.waverec2(newdecomp1, waveletchoice, mode='symmetric')[0:recompimg.shape[0],0:recompimg.shape[1]]
                     recompimg[:,:,1] = pywt.waverec2(newdecomp2, waveletchoice, mode='symmetric')[0:recompimg.shape[0],0:recompimg.shape[1]]
                     recompimg[:,:,2] = pywt.waverec2(newdecomp3, waveletchoice, mode='symmetric')[0:recompimg.shape[0],0:recompimg.shape[1]]
+                    print("Saving results for next iteration...")
+                    wdecompgimg = recompimggray
+                    newdecompimg = recompimg
                     # END NEW RECOMP
 
                     # im1 = Image.fromarray((recompimg))
@@ -262,9 +268,9 @@ class Alg10Waveletr2dDecompL2(object):
         for looplevel in range(wavelevel,0,-1):
         # for looplevel in range(1, wavelevel+1):
             fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
-            fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)
-            fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)
-            fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)
+            fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+            fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+            fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
             print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
             print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
             fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
