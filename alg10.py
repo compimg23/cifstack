@@ -39,13 +39,13 @@ class Alg10Waveletr2dDecompL2(object):
                 waveletchoice = 'haar'
                 print('waveletchoice', waveletchoice)
                 firstimg = img_mats[0]
-                decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
-                decomp2 = pywt.dwt2(firstimg[:,:,1], waveletchoice, mode='per')
-                decomp3 = pywt.dwt2(firstimg[:,:,2], waveletchoice, mode='per')
+                # decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
+                # decomp2 = pywt.dwt2(firstimg[:,:,1], waveletchoice, mode='per')
+                # decomp3 = pywt.dwt2(firstimg[:,:,2], waveletchoice, mode='per')
                 decomp1 = pywt.wavedec2(firstimg[:,:,0], waveletchoice, level=w_mainlevel)
                 decomp2 = pywt.wavedec2(firstimg[:,:,1], waveletchoice, level=w_mainlevel)
                 decomp3 = pywt.wavedec2(firstimg[:,:,2], waveletchoice, level=w_mainlevel)
-                newdecompg = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
+                # newdecompg = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
                 wdecompgimg = cv2.cvtColor(img_mats[0], cv2.COLOR_BGR2GRAY)
                 newdecompg = pywt.wavedec2(wdecompgimg, waveletchoice, level=w_mainlevel)
                 # newdecomp1 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
@@ -247,16 +247,16 @@ class Alg10Waveletr2dDecompL2(object):
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
     
-    def channel_decomp_multilevel(self, currimggray, progressimggray, waveletchoice, wavelevel):
-        fusedlevelimg = currimggray.copy()
-        for j in range(wavelevel,0,-1):
-        # for j in range(1, wavelevel+1):
-            fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, j);
-            fusedlevelimg = pywt.waverec2(fusedleveldecomp, waveletchoice)
+    # def channel_decomp_multilevel(self, currimggray, progressimggray, waveletchoice, wavelevel):
+    #     fusedlevelimg = currimggray.copy()
+    #     for j in range(wavelevel,0,-1):
+    #     # for j in range(1, wavelevel+1):
+    #         fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, j);
+    #         fusedlevelimg = pywt.waverec2(fusedleveldecomp, waveletchoice)
 
-        # fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, wavelevel);
-        fusedleveldecomp = pywt.wavedec2(fusedlevelimg, waveletchoice, level=wavelevel)
-        return fusedleveldecomp
+    #     # fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, wavelevel);
+    #     fusedleveldecomp = pywt.wavedec2(fusedlevelimg, waveletchoice, level=wavelevel)
+    #     return fusedleveldecomp
         
     def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, waveletchoice, wavelevel):
         fusedlevelimg = currimg.copy()
@@ -265,16 +265,27 @@ class Alg10Waveletr2dDecompL2(object):
         # progress_coeffs = pywt.wavedec2(progressimg, waveletchoice, level=wavelevel)
         # curr_graycoeffs = pywt.wavedec2(currgrayimg, waveletchoice, level=wavelevel)
         # progress_graycoeffs = pywt.wavedec2(progressgrayimg, waveletchoice, level=wavelevel)
-        for looplevel in range(wavelevel,0,-1):
+        # for looplevel in range(wavelevel,0,-1):
         # for looplevel in range(1, wavelevel+1):
-            fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
-            fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
-            fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
-            fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
-            print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
-            print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
-            fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
+        #     print("looplevel:", looplevel)
+        #     fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
+        #     fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+        #     fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+        #     fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+        #     print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
+        #     print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
+        #     fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
 
+        looplevel = wavelevel
+        print("looplevel:", looplevel)
+        fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
+        fusedlevelimg[:,:,0] = pywt.waverec2(fusedleveldecomp0, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+        fusedlevelimg[:,:,1] = pywt.waverec2(fusedleveldecomp1, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+        fusedlevelimg[:,:,2] = pywt.waverec2(fusedleveldecomp2, waveletchoice)[0:fusedlevelimg.shape[0],0:fusedlevelimg.shape[1]]
+
+        print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
+        print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
+        fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
         # fusedleveldecomp = self.channel_decomp_wavedec(fusedlevelimg, progressimggray, waveletchoice, wavelevel);
         fusedleveldecomp0 = pywt.wavedec2(fusedlevelimg[:,:,0], waveletchoice, level=wavelevel)
         fusedleveldecomp1 = pywt.wavedec2(fusedlevelimg[:,:,1], waveletchoice, level=wavelevel)
@@ -298,14 +309,14 @@ class Alg10Waveletr2dDecompL2(object):
         fusedcoeffs2 = [progress_coeffs2[0]]
         fusedgraycoeffs = [progress_graycoeffs[0]]
         for i in range(1, num_high_tuples):
-            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
-            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
-            combinedecomps, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
-            fusedcoeffs0.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
-            fusedcoeffs1.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
-            fusedcoeffs2.append((combinedecomps[0], combinedecomps[1], combinedecomps[2]))
-            print('combinedecomps.shape', combinedecomps[0].shape)
-            print('combinedgraydecomps.shape', combinedgraydecomps[0].shape)
+            combinedecomps0, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps1, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps2, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            fusedcoeffs0.append((combinedecomps0[0], combinedecomps0[1], combinedecomps0[2]))
+            fusedcoeffs1.append((combinedecomps1[0], combinedecomps1[1], combinedecomps1[2]))
+            fusedcoeffs2.append((combinedecomps2[0], combinedecomps2[1], combinedecomps2[2]))
+            print('combinedecomps0[0].shape', combinedecomps0[0].shape)
+            print('combinedgraydecomps[0].shape', combinedgraydecomps[0].shape)
             fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2]))
 
         lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
