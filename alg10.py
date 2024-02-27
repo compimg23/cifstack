@@ -356,9 +356,14 @@ class Alg10Waveletr2dDecompL2(object):
         fusedcoeffs2 = [progress_coeffs2[0]]
         fusedgraycoeffs = [progress_graycoeffs[0]]
         for i in range(1, num_high_tuples):
-            combinedecomps0, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
-            combinedecomps1, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
-            combinedecomps2, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps0, combinedgraydecomps, boolMat0 = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps1, combinedgraydecomps, boolMat1 = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
+            combinedecomps2, combinedgraydecomps, boolMat2 = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
+
+            boolMatPrime = sum([boolMat0, boolMat1, boolMat2]) >= 2
+            combinedecomps0, combinedgraydecomps, boolMat0 = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i], boolMatPrime)
+            combinedecomps1, combinedgraydecomps, boolMat1 = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i], boolMatPrime)
+            combinedecomps2, combinedgraydecomps, boolMat2 = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i], boolMatPrime)
 
             # combinedecomps0 = self.channel_decomp_wavedec_max(currimg[:,:,0], progressimg[:,:,0], waveletchoice, wavelevel)[1]
             # combinedecomps1 = self.channel_decomp_wavedec_max(currimg[:,:,1], progressimg[:,:,1], waveletchoice, wavelevel)[1]
@@ -371,9 +376,14 @@ class Alg10Waveletr2dDecompL2(object):
             print('combinedgraydecomps[0].shape', combinedgraydecomps[0].shape)
             fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2]))
 
-        lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
-        lastleveldecomp1, lastlevelgraydecomp = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[1]), (progress_coeffs1[0], progress_coeffs1[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
-        lastleveldecomp2, lastlevelgraydecomp = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[1]), (progress_coeffs2[0], progress_coeffs2[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        lastleveldecomp0, lastlevelgraydecomp, boolLowMat0 = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]), None)
+        lastleveldecomp1, lastlevelgraydecomp, boolLowMat1 = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[1]), (progress_coeffs1[0], progress_coeffs1[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        lastleveldecomp2, lastlevelgraydecomp, boolLowMat2 = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[1]), (progress_coeffs2[0], progress_coeffs2[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
+        boolMatLowPrime = sum([boolLowMat0, boolLowMat1, boolLowMat1]) >= 2
+        lastleveldecomp0, lastlevelgraydecomp, boolLowMat0 = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]), boolMatLowPrime)
+        lastleveldecomp1, lastlevelgraydecomp, boolLowMat1 = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[1]), (progress_coeffs1[0], progress_coeffs1[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]), boolMatLowPrime)
+        lastleveldecomp2, lastlevelgraydecomp, boolLowMat2 = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[1]), (progress_coeffs2[0], progress_coeffs2[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]), boolMatLowPrime)
+
         fusedcoeffs0[0] = lastleveldecomp0[0]
         fusedcoeffs1[0] = lastleveldecomp1[0]
         fusedcoeffs2[0] = lastleveldecomp2[0]
@@ -382,62 +392,66 @@ class Alg10Waveletr2dDecompL2(object):
         print('lastlevelgraydecomp[0]', lastlevelgraydecomp[0].shape)
         return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
     
-    def channel_decomp_wavedec_max(self, currimggray, progressimggray, waveletchoice, wavelevel):
-        # wavelevel = 2
-        coeffs = pywt.wavedec2(currimggray, waveletchoice, level=wavelevel)
-        focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=wavelevel)
-        fused_coeffs = focal_coeffs.copy()
-        num_high_tuples = len(coeffs)
-        highpass_sum = 0
-        focal_highpass_sum = 0
-        fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
-        boolcoeffs = []
-        fusedcoeffs = [focal_coeffs[0]]
-        focalhighsum = 0
-        fusedhighsum = 0
-        for i in range(1, num_high_tuples):
-            # print("I",i)
-            # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
-            bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
-            bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
-            bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
-            if i == 1:
-                focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-                fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
-            # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
-            fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[i][0], coeffs[i][0]), np.where(bool_coeffs11, focal_coeffs[i][1], coeffs[i][1]), np.where(bool_coeffs12, focal_coeffs[i][2], coeffs[i][2])))
+    # def channel_decomp_wavedec_max(self, currimggray, progressimggray, waveletchoice, wavelevel):
+    #     # wavelevel = 2
+    #     coeffs = pywt.wavedec2(currimggray, waveletchoice, level=wavelevel)
+    #     focal_coeffs = pywt.wavedec2(progressimggray, waveletchoice, level=wavelevel)
+    #     fused_coeffs = focal_coeffs.copy()
+    #     num_high_tuples = len(coeffs)
+    #     highpass_sum = 0
+    #     focal_highpass_sum = 0
+    #     fused_coeffs4comp = [np.maximum(np.abs(focal_c), np.abs(img_c)) for focal_c, img_c in zip(focal_coeffs, coeffs)]
+    #     boolcoeffs = []
+    #     fusedcoeffs = [focal_coeffs[0]]
+    #     focalhighsum = 0
+    #     fusedhighsum = 0
+    #     for i in range(1, num_high_tuples):
+    #         # print("I",i)
+    #         # bool_coeffs0 = fused_coeffs4comp[0] == np.abs(focal_coeffs[0])
+    #         bool_coeffs10 = fused_coeffs4comp[i][0] == np.abs(focal_coeffs[i][0])
+    #         bool_coeffs11 = fused_coeffs4comp[i][1] == np.abs(focal_coeffs[i][1])
+    #         bool_coeffs12 = fused_coeffs4comp[i][2] == np.abs(focal_coeffs[i][2])
+    #         if i == 1:
+    #             focalhighsum += np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+    #             fusedhighsum += fused_coeffs4comp[i][0] + fused_coeffs4comp[i][1] + fused_coeffs4comp[i][2]
+    #         # boolcoeffs.append(bool_coeffs0, ((bool_coeffs10, bool_coeffs11, bool_coeffs12)))
+    #         fusedcoeffs.append((np.where(bool_coeffs10, focal_coeffs[i][0], coeffs[i][0]), np.where(bool_coeffs11, focal_coeffs[i][1], coeffs[i][1]), np.where(bool_coeffs12, focal_coeffs[i][2], coeffs[i][2])))
 
-            # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
-            # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
-            # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
+    #         # fused_coeffs[i] = self.channel_decomp_high_sum(coeffs[i], focal_coeffs[i])
+    #         # focal_highpass_sum = np.abs(focal_coeffs[i][0]) + np.abs(focal_coeffs[i][1]) + np.abs(focal_coeffs[i][2])
+    #         # highpass_sum = np.abs(coeffs[i][0]) + np.abs(coeffs[i][1]) + np.abs(coeffs[i][2])
 
-        bool_coeffs0 = focalhighsum >= fusedhighsum
-        # print('bool_coeffs0.shape', bool_coeffs0.shape)
-        # print('focal_coeffs[0].shape', focal_coeffs[0].shape)
-        # if wavelevel == 1:
-        #     print("WAVELEVEL2")
-        #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
+    #     bool_coeffs0 = focalhighsum >= fusedhighsum
+    #     # print('bool_coeffs0.shape', bool_coeffs0.shape)
+    #     # print('focal_coeffs[0].shape', focal_coeffs[0].shape)
+    #     # if wavelevel == 1:
+    #     #     print("WAVELEVEL2")
+    #     #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
 
-        fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
-        # # replace low pass choice with majority vote.
-        # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
-        # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
-        # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
-        # print('bool_coeffs0.shape:', bool_coeffs0.shape)
-        # print('bool_coeffs10.shape:', bool_coeffs10.shape)
-        # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
-        # print('bool0:', bool_coeffs0)
-        # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
-        return fusedcoeffs
+    #     fusedcoeffs[0] = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]) # lowpass vote
+    #     # # replace low pass choice with majority vote.
+    #     # bool_coeffs0 = sum([bool_coeffs10, bool_coeffs11, bool_coeffs12]) >= 2
+    #     # bool_coeffs0 = np.abs(focal_coeffs[1][0]) + np.abs(focal_coeffs[1][1]) + np.abs(focal_coeffs[1][2]) >= fused_coeffs4comp[1][0] + fused_coeffs4comp[1][1] + fused_coeffs4comp[1][2]
+    #     # bool_coeffs0 = focal_highpass_sum >= highpass_sum #PREV COMMIT
+    #     # print('bool_coeffs0.shape:', bool_coeffs0.shape)
+    #     # print('bool_coeffs10.shape:', bool_coeffs10.shape)
+    #     # print('XXXXXXbool0.shape:', bool_coeffs0.shape)
+    #     # print('bool0:', bool_coeffs0)
+    #     # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
+    #     return fusedcoeffs
     
-    def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
+    def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx, boolMat = None):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         print('newdecompx.shape', newdecompx[0].shape)
         print('currdecomp.shape', currdecomp[0].shape)
         print('newgraydecompx[0].shape', newgraydecompx[0].shape)
         print('currgraydecomp[0].shape', currgraydecomp[0].shape)
-        boolMat = np.abs(newgraydecompx[0]) + np.abs(newgraydecompx[1]) + np.abs(newgraydecompx[2]) > \
+        if boolMat is None:
+            print('BOOLMAT NONE')
+            boolMat = np.abs(newgraydecompx[0]) + np.abs(newgraydecompx[1]) + np.abs(newgraydecompx[2]) > \
                          np.abs(currgraydecomp[0]) + np.abs(currgraydecomp[1]) + np.abs(currgraydecomp[2])
+        else:
+            print('BOOLMAT NOT NONE')
         # copy pixel values for all four subbands according to boolean matrix.
         # newdecompx0 = np.where(boolMat,
         #         newdecompx[0], currdecomp[0])
@@ -464,12 +478,16 @@ class Alg10Waveletr2dDecompL2(object):
         print('newgraydecompx10.shape', newgraydecompx10.shape)
         newdecompx = (newdecompx10, newdecompx11, newdecompx12)
         newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12)
-        return newdecompx, newgraydecompx
+        return newdecompx, newgraydecompx, boolMat
 
-    def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
+    def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx, boolMat = None):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        boolMat = np.abs(newgraydecompx[1][0]) + np.abs(newgraydecompx[1][1]) + np.abs(newgraydecompx[1][2]) > \
-                         np.abs(currgraydecomp[1][0]) + np.abs(currgraydecomp[1][1]) + np.abs(currgraydecomp[1][2])
+        if boolMat is None:
+            print('BOOLMAT NONE')
+            boolMat = np.abs(newgraydecompx[1][0]) + np.abs(newgraydecompx[1][1]) + np.abs(newgraydecompx[1][2]) > \
+                            np.abs(currgraydecomp[1][0]) + np.abs(currgraydecomp[1][1]) + np.abs(currgraydecomp[1][2])
+        else:
+            print('BOOLMAT NOT NONE')
         # copy pixel values for all four subbands according to boolean matrix.
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0])
@@ -491,7 +509,7 @@ class Alg10Waveletr2dDecompL2(object):
         
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
         newgraydecompx = newgraydecompx0, (newgraydecompx10, newgraydecompx11, newgraydecompx12)
-        return newdecompx, newgraydecompx
+        return newdecompx, newgraydecompx, boolMat
 
     # def combine_decomps_gray_nolow(self, newdecompx, newdecompg, currdecomp, currdecompg):
     #     # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
