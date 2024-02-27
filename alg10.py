@@ -35,8 +35,8 @@ class Alg10Waveletr2dDecompL2(object):
             # for waveletchoice in pywt.wavelist(family):
             print('wavelist', pywt.wavelist(family))
             for waveletchoice1 in pywt.wavelist(family):
-                w_mainlevel = 2
-                waveletchoice = 'coif15'
+                w_mainlevel = 1
+                waveletchoice = 'db5'
                 print('waveletchoice', waveletchoice)
                 firstimg = img_mats[0]
                 # decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
@@ -298,6 +298,7 @@ class Alg10Waveletr2dDecompL2(object):
         # curr_graycoeffs = pywt.wavedec2(currgrayimg, waveletchoice, level=wavelevel)
         # progress_graycoeffs = pywt.wavedec2(progressgrayimg, waveletchoice, level=wavelevel)
         
+        # LOOP FOR GRADUAL COMPARISON AT DIFFERENT WAVELET LEVELS
         # for looplevel in range(wavelevel,0,-1):
         # for looplevel in range(1, wavelevel+1):
         #     print("looplevel:", looplevel)
@@ -308,6 +309,7 @@ class Alg10Waveletr2dDecompL2(object):
         #     print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
         #     print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
         #     fusedlevelgrayimg = pywt.waverec2(fusedlevelgraydecomp, waveletchoice)
+        # END LOOP FOR GRADUAL COMPARISON AT DIFFERENT WAVELET LEVELS
 
         # ADDED ALTERNATIVE FOR SINGLE LOOP.
         looplevel = wavelevel
