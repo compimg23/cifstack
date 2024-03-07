@@ -431,16 +431,47 @@ class Alg10Waveletr2dDecompL2(object):
     #     # fused_coeffs = np.where(bool_coeffs0, focal_coeffs[0], coeffs[0]), (np.where(bool_coeffs10, focal_coeffs[1][0], coeffs[1][0]), np.where(bool_coeffs11, focal_coeffs[1][1], coeffs[1][1]), np.where(bool_coeffs12, focal_coeffs[1][2], coeffs[1][2]))
     #     return fusedcoeffs
     
+    def spatial_consistency_check(self, boolMatRaw):
+        boolMatNew = boolMatRaw.copy()
+        padMat = np.pad(boolMatRaw, [(1,1), (1,1)], mode='constant')
+        boolMatNewPad = padMat.copy()
+        (shapeY, shapeX) = padMat.shape
+        for i in range(1, shapeY-1):
+            for j in range(1, shapeX-1):
+                surroundMat = padMat[i-1:i+2, j-1:j+2]
+                sum3x3 = np.sum(surroundMat)
+                yBorderCells = 0
+                if i==1 or i == shapeY-2:
+                    yBorderCells = 3
+                xBorderCells = 0
+                if j==1 or j == shapeX-2:
+                    xBorderCells = 3
+                totalBorderCells = yBorderCells + xBorderCells
+                if (i==1 or i == shapeY-2) and (j==1 or j == shapeX-2):
+                    totalBorderCells = totalBorderCells - 1
+                # print("i:",i,"j:",j,"totalBorderCells:",totalBorderCells,"(9-totalBorderCells+1)//2:",(9-totalBorderCells+1) // 2)
+                if sum3x3 >= ((9 - totalBorderCells + 1) // 2):
+                    boolMatNewPad[i,j] = True
+        boolMatNew = boolMatNewPad[1:shapeY-1, 1:shapeX-1]
+        print('boolMatRaw.shape', boolMatRaw.shape, 'boolMatNew.shape', boolMatNew.shape)
+        print('sum boolMatRaw', np.sum(boolMatRaw), 'sum boolMatNew', np.sum(boolMatNew))
+        return boolMatNew
+
     def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         print('newdecompx.shape', newdecompx[0].shape)
         print('currdecomp.shape', currdecomp[0].shape)
         print('newgraydecompx[0].shape', newgraydecompx[0].shape)
         print('currgraydecomp[0].shape', currgraydecomp[0].shape)
+        # Old comparison
+        # boolMat = np.abs(newgraydecompx[0]) + np.abs(newgraydecompx[1]) + np.abs(newgraydecompx[2]) > \
+        #                  np.abs(currgraydecomp[0]) + np.abs(currgraydecomp[1]) + np.abs(currgraydecomp[2])
+        # Subband consistency check, see Forster et al.
         boolMat0 = np.abs(newgraydecompx[0]) > np.abs(currgraydecomp[0])
         boolMat1 = np.abs(newgraydecompx[1]) > np.abs(currgraydecomp[1])
         boolMat2 = np.abs(newgraydecompx[2]) > np.abs(currgraydecomp[2])
-        boolMat = sum([boolMat0, boolMat1, boolMat2]) >= 2
+        boolMatSubbandCheck = sum([boolMat0, boolMat1, boolMat2]) >= 2
+        boolMat = self.spatial_consistency_check(boolMatSubbandCheck)
         # copy pixel values for all four subbands according to boolean matrix.
         # newdecompx0 = np.where(boolMat,
         #         newdecompx[0], currdecomp[0])
@@ -473,10 +504,12 @@ class Alg10Waveletr2dDecompL2(object):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         # boolMat = np.abs(newgraydecompx[1][0]) + np.abs(newgraydecompx[1][1]) + np.abs(newgraydecompx[1][2]) > \
         #                  np.abs(currgraydecomp[1][0]) + np.abs(currgraydecomp[1][1]) + np.abs(currgraydecomp[1][2])
+        # Subband consistency check, see Forster et al.
         boolMat0 = np.abs(newgraydecompx[1][0]) > np.abs(currgraydecomp[1][0])
         boolMat1 = np.abs(newgraydecompx[1][1]) > np.abs(currgraydecomp[1][1])
         boolMat2 = np.abs(newgraydecompx[1][2]) > np.abs(currgraydecomp[1][2])
-        boolMat = sum([boolMat0, boolMat1, boolMat2]) >= 2
+        boolMatSubbandCheck = sum([boolMat0, boolMat1, boolMat2]) >= 2
+        boolMat = self.spatial_consistency_check(boolMatSubbandCheck)
         # copy pixel values for all four subbands according to boolean matrix.
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0])
