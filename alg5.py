@@ -1,3 +1,6 @@
+# This code is based on https://github.com/sjawhar/focus-stacking.
+# Parts of the code responsible for the Laplacian Pyramid was copied here, the rest omitted.
+
 import os
 import cv2
 import numpy as np
