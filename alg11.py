@@ -13,7 +13,7 @@ import dtcwt
 
 class Alg11Waveletr2dDecompComplex(object):
     def startAlg(self, image_files, alignMethod):
-        print("Algorithm11 (wavelet using pywt.wavedec2 method - 2 levels) starting.")
+        print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
         print('image files', image_files)
         image_files = sorted(image_files)
         print('sorted image files', image_files)
@@ -37,7 +37,7 @@ class Alg11Waveletr2dDecompComplex(object):
             # for waveletchoice in pywt.wavelist(family):
             print('wavelist', pywt.wavelist(family))
             for waveletchoice1 in pywt.wavelist(family):
-                w_mainlevel = 3
+                w_mainlevel = 7
                 waveletchoice = 'db5'
                 print('waveletchoice', waveletchoice)
                 firstimg = img_mats[0]
@@ -130,8 +130,8 @@ class Alg11Waveletr2dDecompComplex(object):
                     print(newdecompg[1][0].shape)
                     print(newdecompg[1][1].shape)
                     print(newdecompg[1][2].shape)
-                    print(newdecompg[2][0].shape)
-                    print(newdecompg[3][0].shape)
+                    # print(newdecompg[2][0].shape)
+                    # print(newdecompg[3][0].shape)
                     crecomp = dtcwt.Transform2d().inverse(cdecomp)
                     c2filename = 'OutputFolder/complexRecomp1b.jpg'
                     cv2.imwrite(c2filename, crecomp)
@@ -528,10 +528,14 @@ class Alg11Waveletr2dDecompComplex(object):
             print('combinedgraydecomps[0].shape', combinedgraydecomps[0].shape)
             fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2], combinedgraydecomps[3], combinedgraydecomps[4], combinedgraydecomps[5]))
 
-        print('curr_coeffs0[2].shape', curr_coeffs0[2][0].shape)
-        print('progress_coeffs0[2].shape', progress_coeffs0[2][0].shape)
-        print('curr_graycoeffs[2].shape', curr_graycoeffs[2][0].shape)
-        print('progress_graycoeffs[2].shape', progress_graycoeffs[2][0].shape)
+        # print('curr_coeffs0[2].shape', curr_coeffs0[2][0].shape)
+        # print('progress_coeffs0[2].shape', progress_coeffs0[2][0].shape)
+        # print('curr_graycoeffs[2].shape', curr_graycoeffs[2][0].shape)
+        # print('progress_graycoeffs[2].shape', progress_graycoeffs[2][0].shape)
+        print('curr_coeffs0[1].shape', curr_coeffs0[1][0].shape)
+        print('progress_coeffs0[1].shape', progress_coeffs0[1][0].shape)
+        print('curr_graycoeffs[1].shape', curr_graycoeffs[1][0].shape)
+        print('progress_graycoeffs[1].shape', progress_graycoeffs[1][0].shape)
         lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[2]), (progress_coeffs0[0], progress_coeffs0[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))
         lastleveldecomp1, lastlevelgraydecomp = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[2]), (progress_coeffs1[0], progress_coeffs1[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))
         lastleveldecomp2, lastlevelgraydecomp = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[2]), (progress_coeffs2[0], progress_coeffs2[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))

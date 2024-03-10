@@ -12,7 +12,7 @@ import alignment
 
 class Alg10Waveletr2dDecompL2(object):
     def startAlg(self, image_files, alignMethod):
-        print("Algorithm10 (wavelet using pywt.wavedec2 method - 2 levels) starting.")
+        print("Algorithm10 (wavelet using pywt.wavedec2 method & consistency checks - 2 levels) starting.")
         print('image files', image_files)
         image_files = sorted(image_files)
         print('sorted image files', image_files)
