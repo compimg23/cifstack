@@ -21,7 +21,7 @@ class Alg11Waveletr2dDecompComplex(object):
         # print("SKIPPING alignment module.")
         # img_mats = alignment.align_images_compare_last(img_mats)
         print(pywt.wavelist(kind='discrete'))
-        # img_mats = alignMethod(img_mats) #test w/out align
+        img_mats = alignMethod(img_mats) #test w/out align
         print("typeimgmats",type(img_mats))
         num_files = len(image_files)
         print('numfile', num_files)
@@ -690,14 +690,21 @@ class Alg11Waveletr2dDecompComplex(object):
         boolMatSubbandCheck = sum([boolMat0, boolMat1, boolMat2]) >= 2
 
         boolMat = np.abs(newgraydecompx[0]) > np.abs(currgraydecomp[0])
-        boolMat = self.spatial_consistency_check(boolMat) #(boolMatSubbandCheck)
+        boolMat = self.spatial_consistency_check(boolMat) #boolMat #(boolMatSubbandCheck)
         
         # copy pixel values for all four subbands according to boolean matrix.
-        
-        print('newshape',newdecompx[0].shape,'currshape',currdecomp[0].shape,'boolshape',boolMat.shape)
-        print('newshape',newdecompx[1][0].shape,'currshape',currdecomp[1][0].shape,'boolshape',boolMat.shape)
+        newdecompx0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
+        newgraydecompx0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
+        currdecomp0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
+        currgraydecomp0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
+        print('newdecompx0resize',newdecompx0resize.shape,'currshape',newdecompx0resize.shape,'boolshape',boolMat.shape)
+        print('newgraydecompx0resize',newgraydecompx0resize.shape,'currshape',newgraydecompx0resize.shape,'boolshape',boolMat.shape)
+        print('newshape0',newdecompx[0].shape,'currshape',currdecomp[0].shape,'boolshape',boolMat.shape)
+        print('newshape10',newdecompx[1][0].shape,'currshape',currdecomp[1][0].shape,'boolshape',boolMat.shape)
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0]) #[0:newdecompx[0].shape[0],0:newdecompx[0].shape[1]]
+        newdecompx0[0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]] = np.where(boolMatSubbandCheck,
+                newdecompx0resize, currdecomp0resize)
         # newdecompx10 = np.where(boolMat,
         #     newdecompx[1][0], currdecomp[1][0])
         # newdecompx11 = np.where(boolMat,
@@ -707,6 +714,8 @@ class Alg11Waveletr2dDecompComplex(object):
         
         newgraydecompx0 = np.where(boolMat,
                 newgraydecompx[0], currgraydecomp[0])
+        newgraydecompx0[0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]] = np.where(boolMatSubbandCheck,
+                newgraydecompx0resize, currgraydecomp0resize)
         # newgraydecompx10 = np.where(boolMat,
         #     newgraydecompx[1][0], currgraydecomp[1][0])
         # newgraydecompx11 = np.where(boolMat,
