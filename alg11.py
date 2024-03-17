@@ -10,7 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 import dtcwt
-import gc
+import gc # for garbage collection
 
 class Alg11Waveletr2dDecompComplex(object):
     def startAlg(self, image_files, alignMethod):
