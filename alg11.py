@@ -22,7 +22,7 @@ class Alg11Waveletr2dDecompComplex(object):
         # print("SKIPPING alignment module.")
         # img_mats = alignment.align_images_compare_last(img_mats)
         print(pywt.wavelist(kind='discrete'))
-        # img_mats = alignMethod(img_mats) #test w/out align
+        img_mats = alignMethod(img_mats) #test w/out align
         print("typeimgmats",type(img_mats))
         num_files = len(image_files)
         print('numfile', num_files)
@@ -38,7 +38,7 @@ class Alg11Waveletr2dDecompComplex(object):
         #     # for waveletchoice in pywt.wavelist(family):
         #     print('wavelist', pywt.wavelist(family))
         #     for waveletchoice1 in pywt.wavelist(family):
-        w_mainlevel = 3
+        w_mainlevel = 7
         waveletchoice = 'db5'
         print('waveletchoice', waveletchoice)
         firstimg = img_mats[0]
