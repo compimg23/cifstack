@@ -24,6 +24,7 @@ class Alg5MergeTest(object):
         print('image files', image_files)
 
         # Sort images as of postfix
+        image_files = list(set(image_files)) # remove duplicates
         image_files = sorted(image_files)
         print('sorted image files', image_files)
 

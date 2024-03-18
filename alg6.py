@@ -17,6 +17,7 @@ class Alg6MergeTest(object):
         print("Algorithm5 starting.")
         # Code for algorithm 6 (from cmcguinness repository))
         print('image files', image_files)
+        image_files = list(set(image_files)) # remove duplicates
         image_files = sorted(image_files)
         print('sorted image files', image_files)
 
