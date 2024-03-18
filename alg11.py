@@ -16,6 +16,7 @@ class Alg11Waveletr2dDecompComplex(object):
     def startAlg(self, image_files, alignMethod):
         print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
         print('image files', image_files)
+        image_files = list(set(image_files)) # remove duplicates
         image_files = sorted(image_files)
         print('sorted image files', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
