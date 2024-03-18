@@ -14,6 +14,7 @@ class Alg9Waveletr2dDecompL1(object):
     def startAlg(self, image_files, alignMethod):
         print("Algorithm9 (wavelet using pywt.wavedec2 method - 1 level) starting.")
         print('image files', image_files)
+        image_files = list(set(image_files)) # remove duplicates
         image_files = sorted(image_files)
         print('sorted image files', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
