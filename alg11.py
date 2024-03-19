@@ -26,6 +26,8 @@ class Alg11Waveletr2dDecompComplex(object):
         print('Number of input files:', num_files)
         w_mainlevel = 7
         firstimg = img_mats[0]
+        print('PLEASE NOTE: Transform2d().forward() will throw warnings and automatically resize input images for evenly divisible decompositions.')
+        print('This does not affect the output significantly. This algorithm has been adjusted to take into account these dimension adjustments.')
         decomp1 = dtcwt.Transform2d().forward(firstimg[:,:,0], nlevels=w_mainlevel)
         decomp2 = dtcwt.Transform2d().forward(firstimg[:,:,1], nlevels=w_mainlevel)
         decomp3 = dtcwt.Transform2d().forward(firstimg[:,:,2], nlevels=w_mainlevel)
@@ -46,12 +48,11 @@ class Alg11Waveletr2dDecompComplex(object):
 
             imggray = cv2.cvtColor(currimg, cv2.COLOR_BGR2GRAY)
 
-            print('Processing')
-
-
             #NEW MULTILEVEL DECOMP
             print("Performing pointwise maximum comparison")
 
+            print('PLEASE NOTE: Transform2d().forward() will throw warnings and automatically resize input images for evenly divisible decompositions.')
+            print('This does not affect the output significantly. This algorithm has been adjusted to take into account these dimension adjustments.')
             newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg.copy(), newdecompimg.copy(), imggray.copy(), wdecompgimg.copy(), w_mainlevel)
             gc.collect()
             #END NEW MULTILEVEL DECOMP
@@ -125,12 +126,9 @@ class Alg11Waveletr2dDecompComplex(object):
         highpassList = []
         highpassFirst = np.zeros((decList[decLen-1][0].shape[0], decList[decLen-1][0].shape[1], 6)).astype(complex)
         for j in range(6):
-            print('decList len', len(decList[decLen-1]))
             highpassFirst[:,:,j] = decList[decLen-1][j]
         highpassList.append(highpassFirst)
         highpassTuple = tuple(highpassList)
-        print('TUPLEfirst',len(highpassTuple))
-        print('decList shape', decList[decLen-1][0].shape)
         for i in range(decLen-2, 0, -1):
             gc.collect()
             highpass = np.zeros((decList[i][0].shape[0], decList[i][0].shape[1], 6)).astype(complex)
@@ -138,8 +136,6 @@ class Alg11Waveletr2dDecompComplex(object):
                 highpass[:,:,j] = decList[i][j]
             highpassList.append(highpass)
         highpassTuple = tuple(highpassList)
-        print('TUPLE',len(highpassTuple))
-        print(highpassTuple[0].shape)
         complexDecomp = dtcwt.Pyramid(decList[0], highpassTuple)
         gc.collect()
         return complexDecomp
@@ -154,17 +150,12 @@ class Alg11Waveletr2dDecompComplex(object):
         progressgrayimg = recproggrayimg
         currimg = self.convertWaveletAndBack(currimg, wavelevel)
         progressimg = self.convertWaveletAndBack(progressimg, wavelevel)
-        print("CURRafterconv", currimg.shape)
 
         # ADDED ALTERNATIVE FOR SINGLE LOOP.
         looplevel = wavelevel
-        print("looplevel:", looplevel)
         fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, looplevel)
         # END ADDED ALTERNATIVE FOR SINGLE LOOP.
 
-        print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
-        print('fusedlevelgraydecomp[0].shape', fusedlevelgraydecomp[0].shape)
-        print('**fusedlevelgraydecomp', len(fusedlevelgraydecomp[1]))
         gc.collect()
         return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
         
@@ -182,7 +173,6 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         curr_coeffs2 = self.convert_dtcwt_to_wavedec_list(curr_coeffs2)
         gc.collect()
-        print('curr_coeffs0.shape', curr_coeffs0[0].shape, currimg[:,:,0].shape)
         progress_coeffs0 = dtcwt.Transform2d().forward(progressimg[:,:,0], nlevels=wavelevel)
         gc.collect()
         progress_coeffs1 = dtcwt.Transform2d().forward(progressimg[:,:,1], nlevels=wavelevel)
@@ -195,33 +185,24 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         progress_coeffs2 = self.convert_dtcwt_to_wavedec_list(progress_coeffs2)
         gc.collect()
-        print('progress_coeffs converted')
         curr_graycoeffs = dtcwt.Transform2d().forward(currgrayimg, nlevels=wavelevel)
-        print('curr_graycoeffs forward')
         gc.collect()
         curr_graycoeffs = self.convert_dtcwt_to_wavedec_list(curr_graycoeffs)
-        print('curr_graycoeffs to wavedec')
         gc.collect()
-        print('curr_graycoeffs.shape', curr_graycoeffs[0].shape, currgrayimg.shape)
         progress_graycoeffs = dtcwt.Transform2d().forward(progressgrayimg, nlevels=wavelevel)
-        print('progress_coeffs to wavedec')
         gc.collect()
         progress_graycoeffs = self.convert_dtcwt_to_wavedec_list(progress_graycoeffs)
         gc.collect()
-        print('progress_graycoeffs.shape', progress_graycoeffs[0].shape, progressgrayimg.shape)
-        print('currgrayimg.shape', currgrayimg.shape)
-        print('progressgrayimg.shape', progressgrayimg.shape)
-        print('progress_graycoeffs[1].shape', progress_graycoeffs[1][1].shape)
-        print('curr_graycoeffs[1].shape', curr_graycoeffs[1][1].shape)
-        print('curr_graycoeffs[0].shape', curr_graycoeffs[0].shape)
         num_high_tuples = len(curr_coeffs0)
         # Init fused coeffs with LL subband, will be replaced at end.
         fusedcoeffs0 = [progress_coeffs0[0]]
         fusedcoeffs1 = [progress_coeffs1[0]]
         fusedcoeffs2 = [progress_coeffs2[0]]
         fusedgraycoeffs = [progress_graycoeffs[0]]
+        ## Loop through all the high-pass subband levels, 3 high-pass subbands in each level.
         for i in range(1, num_high_tuples):
             gc.collect()
+            print('Processing high-pass decomposition subbands in level ', i, 'of', num_high_tuples, '.')
             combinedecomps0, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps1, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps2, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
@@ -229,14 +210,8 @@ class Alg11Waveletr2dDecompComplex(object):
             fusedcoeffs0.append((combinedecomps0[0], combinedecomps0[1], combinedecomps0[2], combinedecomps0[3], combinedecomps0[4], combinedecomps0[5]))
             fusedcoeffs1.append((combinedecomps1[0], combinedecomps1[1], combinedecomps1[2], combinedecomps1[3], combinedecomps1[4], combinedecomps1[5]))
             fusedcoeffs2.append((combinedecomps2[0], combinedecomps2[1], combinedecomps2[2], combinedecomps2[3], combinedecomps2[4], combinedecomps2[5]))
-            print('combinedecomps0[0].shape', combinedecomps0[0].shape)
-            print('combinedgraydecomps[0].shape', combinedgraydecomps[0].shape)
             fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2], combinedgraydecomps[3], combinedgraydecomps[4], combinedgraydecomps[5]))
 
-        print('curr_coeffs0[1].shape', curr_coeffs0[1][0].shape)
-        print('progress_coeffs0[1].shape', progress_coeffs0[1][0].shape)
-        print('curr_graycoeffs[1].shape', curr_graycoeffs[1][0].shape)
-        print('progress_graycoeffs[1].shape', progress_graycoeffs[1][0].shape)
         lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[2]), (progress_coeffs0[0], progress_coeffs0[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))
         lastleveldecomp1, lastlevelgraydecomp = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[2]), (progress_coeffs1[0], progress_coeffs1[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))
         lastleveldecomp2, lastlevelgraydecomp = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[2]), (progress_coeffs2[0], progress_coeffs2[2]), (curr_graycoeffs[0], curr_graycoeffs[2]), (progress_graycoeffs[0], progress_graycoeffs[2]))
@@ -244,8 +219,6 @@ class Alg11Waveletr2dDecompComplex(object):
         fusedcoeffs1[0] = lastleveldecomp1#[0]
         fusedcoeffs2[0] = lastleveldecomp2#[0]
         fusedgraycoeffs[0] = lastlevelgraydecomp#[0]
-        print('lastleveldecomp0[0]', lastleveldecomp0.shape)
-        print('lastlevelgraydecomp[0]', lastlevelgraydecomp.shape)
         gc.collect()
         return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
     
@@ -270,16 +243,10 @@ class Alg11Waveletr2dDecompComplex(object):
                 if sum3x3 >= ((9 - totalBorderCells + 1) // 2):
                     boolMatNewPad[i,j] = True
         boolMatNew = boolMatNewPad[1:shapeY-1, 1:shapeX-1]
-        print('boolMatRaw.shape', boolMatRaw.shape, 'boolMatNew.shape', boolMatNew.shape)
-        print('sum boolMatRaw', np.sum(boolMatRaw), 'sum boolMatNew', np.sum(boolMatNew))
         return boolMatNew
 
     def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
-        print('newdecompx.shape', newdecompx[0].shape)
-        print('currdecomp.shape', currdecomp[0].shape)
-        print('newgraydecompx[0].shape', newgraydecompx[0].shape)
-        print('currgraydecomp[0].shape', currgraydecomp[0].shape)
         # Old comparison
         # boolMat = np.abs(newgraydecompx[0]) + np.abs(newgraydecompx[1]) + np.abs(newgraydecompx[2]) > \
         #                  np.abs(currgraydecomp[0]) + np.abs(currgraydecomp[1]) + np.abs(currgraydecomp[2])
@@ -293,11 +260,6 @@ class Alg11Waveletr2dDecompComplex(object):
         boolMatSubbandCheck = sum([boolMat0, boolMat1, boolMat2, boolMat3, boolMat4, boolMat5]) >= 3
         boolMat = self.spatial_consistency_check(boolMatSubbandCheck)
         # copy pixel values for all four subbands according to boolean matrix.
-        print('newdecompx.shape', newdecompx[0].shape)
-        print('currdecomp.shape', currdecomp[0].shape)
-        print('newgraydecompx.shape', newgraydecompx[0].shape)
-        print('currgraydecomp.shape', currgraydecomp[0].shape)
-        print('boolMat.shape', boolMat.shape)
         newdecompx10 = np.where(boolMat,
             newdecompx[0], currdecomp[0])
         newdecompx11 = np.where(boolMat,
@@ -324,8 +286,6 @@ class Alg11Waveletr2dDecompComplex(object):
         newgraydecompx15 = np.where(boolMat,
             newgraydecompx[5], currgraydecomp[5])
         
-        print('newdecompx10.shape', newdecompx10.shape)
-        print('newgraydecompx10.shape', newgraydecompx10.shape)
         newdecompx = (newdecompx10, newdecompx11, newdecompx12, newdecompx13, newdecompx14, newdecompx15)
         newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12, newgraydecompx13, newgraydecompx14, newgraydecompx15)
         return newdecompx, newgraydecompx
@@ -336,10 +296,6 @@ class Alg11Waveletr2dDecompComplex(object):
         # boolMat = np.abs(newgraydecompx[1][0]) + np.abs(newgraydecompx[1][1]) + np.abs(newgraydecompx[1][2]) > \
         #                  np.abs(currgraydecomp[1][0]) + np.abs(currgraydecomp[1][1]) + np.abs(currgraydecomp[1][2])
         # Subband consistency check, see Forster et al.
-        print('newgraydecompx[1][0]',newgraydecompx[1][0].shape)
-        print('currgraydecomp[1][0]',currgraydecomp[1][0].shape)
-        print('newgraydecompx[0]',newgraydecompx[0].shape)
-        print('currgraydecomp[0]',currgraydecomp[0].shape)
         boolMat0 = np.abs(newgraydecompx[1][0]) > np.abs(currgraydecomp[1][0])
         boolMat1 = np.abs(newgraydecompx[1][1]) > np.abs(currgraydecomp[1][1])
         boolMat2 = np.abs(newgraydecompx[1][2]) > np.abs(currgraydecomp[1][2])
@@ -353,10 +309,6 @@ class Alg11Waveletr2dDecompComplex(object):
         newgraydecompx0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
         currdecomp0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
         currgraydecomp0resize = newdecompx[0][0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]]
-        print('newdecompx0resize',newdecompx0resize.shape,'currshape',newdecompx0resize.shape,'boolshape',boolMat.shape)
-        print('newgraydecompx0resize',newgraydecompx0resize.shape,'currshape',newgraydecompx0resize.shape,'boolshape',boolMat.shape)
-        print('newshape0',newdecompx[0].shape,'currshape',currdecomp[0].shape,'boolshape',boolMat.shape)
-        print('newshape10',newdecompx[1][0].shape,'currshape',currdecomp[1][0].shape,'boolshape',boolMat.shape)
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0]) #[0:newdecompx[0].shape[0],0:newdecompx[0].shape[1]]
         newdecompx0[0:newdecompx[1][0].shape[0],0:newdecompx[1][0].shape[1]] = np.where(boolMatSubbandCheck,
