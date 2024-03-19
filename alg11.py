@@ -15,21 +15,16 @@ import gc # for garbage collection
 class Alg11Waveletr2dDecompComplex(object):
     def startAlg(self, image_files, alignMethod):
         print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
-        print('image files', image_files)
+        print('image files input list', image_files)
         image_files = list(set(image_files)) # remove duplicates
         image_files = sorted(image_files)
-        print('sorted image files', image_files)
+        print('sorted image files input list', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
         print(pywt.wavelist(kind='discrete'))
-        img_mats = alignMethod(img_mats) #test w/out align
-        print("typeimgmats",type(img_mats))
+        img_mats = alignMethod(img_mats) #remove to test w/out alignment
         num_files = len(image_files)
-        print('numfile', num_files)
-        family = 'cmor'
-        print(pywt.families())
+        print('Number of input files:', num_files)
         w_mainlevel = 7
-        waveletchoice = 'db5'
-        print('waveletchoice', waveletchoice)
         firstimg = img_mats[0]
         decomp1 = dtcwt.Transform2d().forward(firstimg[:,:,0], nlevels=w_mainlevel)
         decomp2 = dtcwt.Transform2d().forward(firstimg[:,:,1], nlevels=w_mainlevel)
@@ -47,8 +42,7 @@ class Alg11Waveletr2dDecompComplex(object):
         for j in range(num_files):
             gc.collect()
             currimg = img_mats[j]
-            print("firstimg shape", firstimg.shape)
-            print("Running wavelet decomposition.")
+            print("Running wavelet decomposition, iteration", j, "of", num_files)
 
             imggray = cv2.cvtColor(currimg, cv2.COLOR_BGR2GRAY)
 
@@ -58,14 +52,11 @@ class Alg11Waveletr2dDecompComplex(object):
             #NEW MULTILEVEL DECOMP
             print("Performing pointwise maximum comparison")
 
-            newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg.copy(), newdecompimg.copy(), imggray.copy(), wdecompgimg.copy(), waveletchoice, w_mainlevel)
+            newdecomp1, newdecomp2, newdecomp3, newdecompg = self.channel_decomp_multilevel_3chan(currimg.copy(), newdecompimg.copy(), imggray.copy(), wdecompgimg.copy(), w_mainlevel)
             gc.collect()
             #END NEW MULTILEVEL DECOMP
 
             # NEW RECOMP
-            # Why is gray shape different from color channel shapes?
-            print("recg",newdecompg[0].shape)
-            print("rec0", newdecomp1[0].shape)
             print("Recompositing current image from decompositions.")
             dtcwt_newdecompg = self.convert_wavedec_list_to_dtcwt(newdecompg)
             graychan = dtcwt.Transform2d().inverse(dtcwt_newdecompg)
@@ -84,18 +75,18 @@ class Alg11Waveletr2dDecompComplex(object):
             newdecompimg = recompimg
             # END NEW RECOMP
 
-            recompname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
+            recompname = 'OutputFolder/Transform2d_recomp_' + str(j) + '.jpg'
             print('Saving recomposition')
             cv2.imwrite(recompname, recompimg)
             print('Recomposition saved in ' + recompname)
 
-            recompgrayname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_gray' + str(j) + '.jpg'
-            print('Saving recomposition')
+            recompgrayname = 'OutputFolder/Transform2d_recomp_gray' + str(j) + '.jpg'
+            print('Saving gray recomposition')
             cv2.imwrite(recompgrayname, recompimggray)
             print('Recomposition gray saved in ' + recompgrayname)
             
 
-        print('Saving recomposition')
+        print('Saving final recomposition')
         cv2.imwrite(recompname, recompimg)
 
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
@@ -104,7 +95,7 @@ class Alg11Waveletr2dDecompComplex(object):
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
         
-    def convertWaveletAndBack(self, imgToConvert, waveletchoice, wavelevel):
+    def convertWaveletAndBack(self, imgToConvert, wavelevel):
         imgdec0 = dtcwt.Transform2d().forward(imgToConvert[:,:,0], nlevels=wavelevel)
         imgdec1 = dtcwt.Transform2d().forward(imgToConvert[:,:,1], nlevels=wavelevel)
         imgdec2 = dtcwt.Transform2d().forward(imgToConvert[:,:,2], nlevels=wavelevel)
@@ -153,7 +144,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return complexDecomp
     
-    def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, waveletchoice, wavelevel):
+    def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         fusedlevelimg = currimg.copy()#
         curr_gcoeffs0 = dtcwt.Transform2d().forward(currgrayimg, nlevels=wavelevel)
         recgimg0 = dtcwt.Transform2d().inverse(curr_gcoeffs0)
@@ -161,14 +152,14 @@ class Alg11Waveletr2dDecompComplex(object):
         proggray_coeffs = dtcwt.Transform2d().forward(progressgrayimg, nlevels=wavelevel)
         recproggrayimg = dtcwt.Transform2d().inverse(proggray_coeffs)
         progressgrayimg = recproggrayimg
-        currimg = self.convertWaveletAndBack(currimg, waveletchoice, wavelevel)
-        progressimg = self.convertWaveletAndBack(progressimg, waveletchoice, wavelevel)
+        currimg = self.convertWaveletAndBack(currimg, wavelevel)
+        progressimg = self.convertWaveletAndBack(progressimg, wavelevel)
         print("CURRafterconv", currimg.shape)
 
         # ADDED ALTERNATIVE FOR SINGLE LOOP.
         looplevel = wavelevel
         print("looplevel:", looplevel)
-        fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
+        fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, looplevel)
         # END ADDED ALTERNATIVE FOR SINGLE LOOP.
 
         print('fusedleveldecomp0[0].shape', fusedleveldecomp0[0].shape)
@@ -177,7 +168,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
         
-    def channel_decomp_wavedec_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, waveletchoice, wavelevel):
+    def channel_decomp_wavedec_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         gc.collect()
         curr_coeffs0 = dtcwt.Transform2d().forward(currimg[:,:,0], nlevels=wavelevel)
         gc.collect()
