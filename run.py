@@ -16,6 +16,8 @@ import alignment, alignment_midterm, alignment_alt
 from PIL import Image
 import PIL
 
+import time
+
 def main():
     _parser = ArgumentParser(prog="Tool to focus stack a list of images.")
     _parser.add_argument(
@@ -120,7 +122,19 @@ def main():
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()
 
+    start_time = time.time()
+    
+    start_time_of_day = time.localtime()
+
     resultImg = alg.startAlg(image_files, alignMethod)
+
+    total_seconds = time.time() - start_time
+    end_time_of_day = time.localtime()
+
+    print("Algorithm time to run: --- %s seconds ---" % total_seconds)
+
+    print("Algorithm was started at", start_time_of_day, "and ended at time", end_time_of_day)
+
     print("*Algorithm finished running")
     
     if os.path.exists(args.output):
