@@ -9,6 +9,7 @@ from skimage.filters.rank import modal, majority, maximum
 from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
+import gc # for garbage collection
 
 class Alg10Waveletr2dDecompL2(object):
     def startAlg(self, image_files, alignMethod):
@@ -22,8 +23,9 @@ class Alg10Waveletr2dDecompL2(object):
         img_mats = alignMethod(img_mats)
         print("typeimgmats",type(img_mats))
         num_files = len(image_files)
-        print('numfile', num_files)
+        print('Number of input files:', num_files)
         family = 'cmor'
+        print('Outputting possible wavelets for reference...')
         print(pywt.families())
         print('family', family)
         print('wavelist', pywt.wavelist(family))
@@ -41,6 +43,7 @@ class Alg10Waveletr2dDecompL2(object):
         newdecomp3 = decomp3
         newdecompimg = firstimg.copy()
         for j in range(num_files):
+            gc.collect()
             currimg = img_mats[j]
             print("Running wavelet decomposition.")
 
@@ -58,6 +61,7 @@ class Alg10Waveletr2dDecompL2(object):
             recchan = pywt.waverec2(newdecomp1, waveletchoice)#[0:recompimg.shape[0],0:recompimg.shape[1]]
             recompimggray = np.zeros((graychan.shape[0], graychan.shape[1]))
             recompimg = np.zeros((recchan.shape[0], recchan.shape[1], 3))
+            gc.collect()
             recompimggray[:,:] = pywt.waverec2(newdecompg, waveletchoice)[0:recompimggray.shape[0],0:recompimggray.shape[1]]
             recompimg[:,:,0] = pywt.waverec2(newdecomp1, waveletchoice)[0:recompimg.shape[0],0:recompimg.shape[1]]
             recompimg[:,:,1] = pywt.waverec2(newdecomp2, waveletchoice)[0:recompimg.shape[0],0:recompimg.shape[1]]
@@ -114,6 +118,7 @@ class Alg10Waveletr2dDecompL2(object):
         # ADDED ALTERNATIVE FOR SINGLE LOOP.
         looplevel = wavelevel
         print("looplevel:", looplevel)
+        gc.collect()
         fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
 
         return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
@@ -134,6 +139,7 @@ class Alg10Waveletr2dDecompL2(object):
         fusedcoeffs2 = [progress_coeffs2[0]]
         fusedgraycoeffs = [progress_graycoeffs[0]]
         for i in range(1, num_high_tuples):
+            gc.collect()
             combinedecomps0, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps1, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps2, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
@@ -143,6 +149,7 @@ class Alg10Waveletr2dDecompL2(object):
             fusedcoeffs2.append((combinedecomps2[0], combinedecomps2[1], combinedecomps2[2]))
             fusedgraycoeffs.append((combinedgraydecomps[0], combinedgraydecomps[1], combinedgraydecomps[2]))
 
+        gc.collect()
         lastleveldecomp0, lastlevelgraydecomp = self.combine_decomps((curr_coeffs0[0], curr_coeffs0[1]), (progress_coeffs0[0], progress_coeffs0[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
         lastleveldecomp1, lastlevelgraydecomp = self.combine_decomps((curr_coeffs1[0], curr_coeffs1[1]), (progress_coeffs1[0], progress_coeffs1[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
         lastleveldecomp2, lastlevelgraydecomp = self.combine_decomps((curr_coeffs2[0], curr_coeffs2[1]), (progress_coeffs2[0], progress_coeffs2[1]), (curr_graycoeffs[0], curr_graycoeffs[1]), (progress_graycoeffs[0], progress_graycoeffs[1]))
@@ -160,6 +167,7 @@ class Alg10Waveletr2dDecompL2(object):
         (shapeY, shapeX) = padMat.shape
         for i in range(1, shapeY-1):
             for j in range(1, shapeX-1):
+                gc.collect()
                 surroundMat = padMat[i-1:i+2, j-1:j+2]
                 sum3x3 = np.sum(surroundMat)
                 yBorderCells = 0
@@ -175,6 +183,7 @@ class Alg10Waveletr2dDecompL2(object):
                 if sum3x3 >= ((9 - totalBorderCells + 1) // 2):
                     boolMatNewPad[i,j] = True
         boolMatNew = boolMatNewPad[1:shapeY-1, 1:shapeX-1]
+        gc.collect()
         return boolMatNew
 
     def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
@@ -204,6 +213,7 @@ class Alg10Waveletr2dDecompL2(object):
         
         newdecompx = (newdecompx10, newdecompx11, newdecompx12)
         newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12)
+        gc.collect()
         return newdecompx, newgraydecompx
 
     def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
@@ -237,4 +247,5 @@ class Alg10Waveletr2dDecompL2(object):
         
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
         newgraydecompx = newgraydecompx0, (newgraydecompx10, newgraydecompx11, newgraydecompx12)
+        gc.collect()
         return newdecompx, newgraydecompx

@@ -36,7 +36,6 @@ class Alg6MergeTest(object):
         # images = alignment.align_images_compare_last(focusimages)
         images = alignMethod(focusimages)
         gc.collect()
-        print("IMAGES",focusimages)
 
         print ("Computing the laplacian of the blurred images")
         laps = []
