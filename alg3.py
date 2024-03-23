@@ -9,6 +9,7 @@ from skimage.filters.rank import modal, majority, maximum
 from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
+import gc # for garbage collection
 
 class Alg3WaveletGray(object):
     def startAlg(self, image_files, alignMethod):
@@ -39,6 +40,7 @@ class Alg3WaveletGray(object):
         newdecomp2 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
         newdecomp3 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
         for j in range(num_files):
+            gc.collect()
             currimg = img_mats[j]
             print("firstimg shape", firstimg.shape)
             print("Running wavelet decomposition.")
@@ -69,6 +71,7 @@ class Alg3WaveletGray(object):
             newdecomp2, newdecompg = self.combine_decomps_gray(newdecomp2, newdecompg, decomp2, decompgray)
             newdecomp3, newdecompg = self.combine_decomps_gray(newdecomp3, newdecompg, decomp3, decompgray)
             
+            gc.collect()
             recompimg = np.zeros_like(currimg)
             recompimggray = np.zeros_like(imggray)
 
@@ -93,11 +96,13 @@ class Alg3WaveletGray(object):
             # Loop over RGB channels of current image
             for decomp in [newdecomp1, newdecomp2, newdecomp3]:
                 # Creating & saving decomposition images
+                gc.collect()
                 LL, (LH, HL, HH) = decomp
                 titles = ['Approximation', ' Horizontal detail',
                 'Vertical detail', 'Diagonal detail']
                 fig = plt.figure(figsize=(13, 10.8))
                 for i, a in enumerate([LL, LH, HL, HH]):
+                    gc.collect()
                     ax = fig.add_subplot(2, 2, i + 1)
                     ax.imshow(a, interpolation="nearest", cmap=plt.cm.gray)
                     ax.set_title(titles[i], fontsize=10)
@@ -128,6 +133,7 @@ class Alg3WaveletGray(object):
         # copy pixel values for all four subbands according to boolean matrix.
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0])
+        gc.collect()
         newdecompx10 = np.where(boolMat,
             newdecompx[1][0], currdecomp[1][0])
         newdecompx11 = np.where(boolMat,
@@ -144,6 +150,7 @@ class Alg3WaveletGray(object):
         # copy pixel values for all four subbands according to boolean matrix.
         newdecompx0 = np.where(boolMat,
                 newdecompx[0], currdecomp[0])
+        gc.collect()
         newdecompx10 = np.where(boolMat,
             newdecompx[1][0], currdecomp[1][0])
         newdecompx11 = np.where(boolMat,
@@ -152,6 +159,7 @@ class Alg3WaveletGray(object):
             newdecompx[1][2], currdecomp[1][2])
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
 
+        gc.collect()
         newdecompg0 = np.where(boolMat,
                 newdecompg[0], currdecompg[0])
         newdecompg10 = np.where(boolMat,
