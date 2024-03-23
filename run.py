@@ -131,9 +131,9 @@ def main():
     total_seconds = time.time() - start_time
     end_time_of_day = time.localtime()
 
-    print("Algorithm time to run: --- %s seconds ---" % total_seconds)
+    print("Algorithm", args.alg, "time to run: --- %s seconds ---" % total_seconds)
 
-    print("Algorithm was started at", start_time_of_day, "and ended at time", end_time_of_day)
+    print("Algorithm was started at time object", start_time_of_day, "and ended at time object", end_time_of_day)
 
     print("*Algorithm finished running")
     
