@@ -7,6 +7,7 @@ import numpy as np
 import alignment
 from matplotlib import pyplot as plt
 from scipy import ndimage
+import gc # for garbage collection
 
 pyramid_min_size = 32
 kernel_size = 5
@@ -34,9 +35,11 @@ class Alg5MergeTest(object):
         # Align images
         print("Running alignment module.")
         img_mats = alignMethod(img_mats)
+        gc.collect()
         print("typeimgmats",type(img_mats))
 
         img_mats = np.array(img_mats, dtype=img_mats[0].dtype)
+        gc.collect()
 
         # Print total images used
         num_files = len(image_files)
@@ -51,6 +54,7 @@ def collapse(pyramid):
     print('*Collapsing pyramid layers\r')
     image = pyramid[-1]
     for layer in pyramid[-2::-1]:
+        gc.collect()
         expanded = expand_layer(image)
         if expanded.shape != layer.shape:
             expanded = expanded[:layer.shape[0],:layer.shape[1]]
@@ -75,6 +79,7 @@ def reduce_layer(layer, kernel=generating_kernel(0.4)):
     next_layer[:, :, 0] = ch_layer
 
     for channel in range(1, layer.shape[2]):
+        gc.collect()
         next_layer[:, :, channel] = reduce_layer(layer[:,:,channel])
 
     return next_layer
@@ -86,11 +91,13 @@ def expand_layer(layer, kernel=generating_kernel(0.4)):
         convolution = convolve(expand, kernel)
         return 4.*convolution
 
+    gc.collect()
     ch_layer = expand_layer(layer[:,:,0])
     next_layer = np.zeros(list(ch_layer.shape) + [layer.shape[2]], dtype = ch_layer.dtype)
     next_layer[:, :, 0] = ch_layer
 
     for channel in range(1, layer.shape[2]):
+        gc.collect()
         next_layer[:, :, channel] = expand_layer(layer[:,:,channel])
 
     return next_layer
@@ -112,7 +119,9 @@ def entropy(image, kernel_size):
     entropies = np.zeros(image.shape[:2], dtype=np.float64)
     offset = np.arange(-pad_amount, pad_amount + 1)
     for row in range(entropies.shape[0]):
+        gc.collect()
         for column in range(entropies.shape[1]):
+            gc.collect()
             area = padded_image[row + pad_amount + offset[:, np.newaxis], column + pad_amount + offset]
             entropies[row, column] = _area_entropy(area, probabilities)
 
@@ -129,6 +138,7 @@ def deviation(image, kernel_size):
     offset = np.arange(-pad_amount, pad_amount + 1)
     for row in range(deviations.shape[0]):
         for column in range(deviations.shape[1]):
+            gc.collect()
             area = padded_image[row + pad_amount + offset[:, np.newaxis], column + pad_amount + offset]
             deviations[row, column] = _area_deviation(area)
 
@@ -143,6 +153,7 @@ def get_fused_base(images, kernel_size):
     print('*\tCalculating deviation of base layer\r')
     deviations = np.copy(entropies)
     for layer in range(layers):
+        gc.collect()
         gray_image = cv2.cvtColor(images[layer].astype(np.float32), cv2.COLOR_BGR2GRAY).astype(np.uint8)
         entropies[layer] = entropy(gray_image, kernel_size)
         deviations[layer] = deviation(gray_image, kernel_size)
@@ -153,6 +164,7 @@ def get_fused_base(images, kernel_size):
     
     print('*Fusing base layer\r')
     for layer in range(layers):
+        gc.collect()
         fused += np.where(best_e[:,:,np.newaxis] == layer, images[layer], 0)
         fused += np.where(best_d[:,:,np.newaxis] == layer, images[layer], 0)
 
@@ -164,6 +176,7 @@ def fuse_pyramids(pyramids, kernel_size):
     print('*Fusing remaining layers\r')
 
     for layer in range(len(pyramids) - 2, -1, -1):
+        gc.collect()
         print(f'*\tFusing images of layer {layer+1} of pyramid\r')
         fused.append(get_fused_laplacian(pyramids[layer]))
 
@@ -183,6 +196,7 @@ def get_fused_laplacian(laplacians):
 
     print('*\t\tCalculating region energies')
     for layer in range(layers):
+        gc.collect()
         gray_lap = cv2.cvtColor(laplacians[layer].astype(np.float32), cv2.COLOR_BGR2GRAY)
         region_energies[layer] = region_energy(gray_lap)
 
@@ -203,12 +217,14 @@ def gaussian_pyramid(images, levels):
     num_images = images.shape[0]
 
     while levels > 0:
+        gc.collect()
         print(f'*\t\tApplying lowpass filter to base pyramid level {levels}\r')
         next_layer = reduce_layer(pyramid[-1][0])
         next_layer_size = [num_images] + list(next_layer.shape)
         pyramid.append(np.zeros(next_layer_size, dtype=next_layer.dtype))
         pyramid[-1][0] = next_layer
         for layer in range(1, images.shape[0]):
+            gc.collect()
             print(f'*\t\t\tProcessing level {levels} of image {layer} / {images.shape[0]-1}\r')
             pyramid[-1][layer] = reduce_layer(pyramid[-2][layer])
 
@@ -231,9 +247,11 @@ def laplacian_pyramid(images, levels):
     print('*\tExpanding individual pyramid layers n to layer n+1\r')
 
     for level in range(len(gaussian) - 1, 0, -1):
+        gc.collect()
         gauss = gaussian[level - 1]
         pyramid.append(np.zeros(gauss.shape, dtype=gauss.dtype))
         for layer in range(images.shape[0]):
+            gc.collect()
             gauss_layer = gauss[layer]   
             expanded = expand_layer(gaussian[level][layer])
             if expanded.shape != gauss_layer.shape:
