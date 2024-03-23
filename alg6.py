@@ -9,6 +9,7 @@ from skimage.filters.rank import modal, majority, maximum
 from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
+import gc # for garbage collection
 
 transFolder = 'TransFolder/'
 
@@ -34,11 +35,12 @@ class Alg6MergeTest(object):
         print("Running alignment module.")
         # images = alignment.align_images_compare_last(focusimages)
         images = alignMethod(focusimages)
-        print("IMAGES",focusimages)
+        gc.collect()
 
         print ("Computing the laplacian of the blurred images")
         laps = []
         for i in range(len(images)):
+            gc.collect()
             print ("Lap {}".format(i))
             laps.append(doLap(cv2.cvtColor(images[i],cv2.COLOR_BGR2GRAY)))
             curr = doLap(cv2.cvtColor(images[i],cv2.COLOR_BGR2GRAY))
@@ -54,6 +56,7 @@ class Alg6MergeTest(object):
         bool_mask = abs_laps == maxima
         mask = bool_mask.astype(np.uint8)
         for i in range(0,len(images)):
+            gc.collect()
             output = cv2.bitwise_not(images[i],output, mask=mask[i])
             
 

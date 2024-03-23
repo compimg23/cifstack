@@ -16,6 +16,8 @@ import alignment, alignment_midterm, alignment_alt
 from PIL import Image
 import PIL
 
+import time
+
 def main():
     _parser = ArgumentParser(prog="Tool to focus stack a list of images.")
     _parser.add_argument(
@@ -120,21 +122,26 @@ def main():
             print("*Activating dummy algorithm 1 (default).")
             alg = dummyalg1.DummyAlgorithm1()
 
+    start_time = time.time()
+    
+    start_time_of_day = time.localtime()
+
     resultImg = alg.startAlg(image_files, alignMethod)
-    print("*Algorithm finished running")
     
     if os.path.exists(args.output):
         print(f"*Image {args.output} exists already. Canceling write operation.")
     else:
         print(f"*Writing image {args.output}")
-        # im1 = Image.fromarray((resultImg * 55).astype(np.uint8))
         cv2.imwrite('OutputFolder/' + args.output, resultImg)
 
-        #Old output with switched R-B channels.
-        # im1 = Image.fromarray((resultImg).astype(np.uint8))
-        # # im1 = im1.convert('RGB')
-        # im1.save('OutputFolder/' + args.output)
+    total_seconds = time.time() - start_time
+    end_time_of_day = time.localtime()
 
+    print("Algorithm", args.alg, "time to run: --- %s seconds ---" % total_seconds)
+
+    print("Algorithm was started at time object", start_time_of_day, "and ended at time object", end_time_of_day)
+
+    print("*Algorithm finished running")
 
 if __name__ == "__main__":
     main()
