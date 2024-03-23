@@ -117,7 +117,6 @@ class Alg3WaveletGray(object):
                 plt.close() #Important to close plot often, otherwise memory leak and program crashes after 50 iterations!
                 print('Decomposition figure saved in ' + figname)
         print('Saving recomposition')
-        # im1.save(recompname)
         cv2.imwrite(recompname, recompimg)
 
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')

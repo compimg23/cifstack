@@ -127,6 +127,12 @@ def main():
     start_time_of_day = time.localtime()
 
     resultImg = alg.startAlg(image_files, alignMethod)
+    
+    if os.path.exists(args.output):
+        print(f"*Image {args.output} exists already. Canceling write operation.")
+    else:
+        print(f"*Writing image {args.output}")
+        cv2.imwrite('OutputFolder/' + args.output, resultImg)
 
     total_seconds = time.time() - start_time
     end_time_of_day = time.localtime()
@@ -136,19 +142,6 @@ def main():
     print("Algorithm was started at time object", start_time_of_day, "and ended at time object", end_time_of_day)
 
     print("*Algorithm finished running")
-    
-    if os.path.exists(args.output):
-        print(f"*Image {args.output} exists already. Canceling write operation.")
-    else:
-        print(f"*Writing image {args.output}")
-        # im1 = Image.fromarray((resultImg * 55).astype(np.uint8))
-        cv2.imwrite('OutputFolder/' + args.output, resultImg)
-
-        #Old output with switched R-B channels.
-        # im1 = Image.fromarray((resultImg).astype(np.uint8))
-        # # im1 = im1.convert('RGB')
-        # im1.save('OutputFolder/' + args.output)
-
 
 if __name__ == "__main__":
     main()
