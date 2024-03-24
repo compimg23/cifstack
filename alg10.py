@@ -117,7 +117,7 @@ class Alg10Waveletr2dDecompL2(object):
 
         # ADDED ALTERNATIVE FOR SINGLE LOOP.
         looplevel = wavelevel
-        print("looplevel:", looplevel)
+        print("looplevel (# of high-pass tuples):", looplevel)
         gc.collect()
         fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp = self.channel_decomp_wavedec_3chan(fusedlevelimg, progressimg, fusedlevelgrayimg, progressgrayimg, waveletchoice, looplevel)
 
@@ -140,6 +140,7 @@ class Alg10Waveletr2dDecompL2(object):
         fusedgraycoeffs = [progress_graycoeffs[0]]
         for i in range(1, num_high_tuples):
             gc.collect()
+            print("Combining decomposition of high-pass tuple", i)
             combinedecomps0, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs0[i], progress_coeffs0[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps1, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs1[i], progress_coeffs1[i], curr_graycoeffs[i], progress_graycoeffs[i])
             combinedecomps2, combinedgraydecomps = self.combine_decomps_nolow(curr_coeffs2[i], progress_coeffs2[i], curr_graycoeffs[i], progress_graycoeffs[i])
@@ -167,7 +168,7 @@ class Alg10Waveletr2dDecompL2(object):
         (shapeY, shapeX) = padMat.shape
         for i in range(1, shapeY-1):
             for j in range(1, shapeX-1):
-                gc.collect()
+                # gc.collect() # Unfortunately this collect() causes the program to freeze.
                 surroundMat = padMat[i-1:i+2, j-1:j+2]
                 sum3x3 = np.sum(surroundMat)
                 yBorderCells = 0
