@@ -118,12 +118,13 @@ def entropy(image, kernel_size):
     padded_image = cv2.copyMakeBorder(image,pad_amount,pad_amount,pad_amount,pad_amount,cv2.BORDER_REFLECT101)
     entropies = np.zeros(image.shape[:2], dtype=np.float64)
     offset = np.arange(-pad_amount, pad_amount + 1)
+    gc.collect()
     for row in range(entropies.shape[0]):
-        gc.collect()
         for column in range(entropies.shape[1]):
-            gc.collect()
+            # gc.collect() # Unfortunately this freezes the program here.
             area = padded_image[row + pad_amount + offset[:, np.newaxis], column + pad_amount + offset]
             entropies[row, column] = _area_entropy(area, probabilities)
+    gc.collect()
 
     return entropies
 
@@ -136,11 +137,13 @@ def deviation(image, kernel_size):
     padded_image = cv2.copyMakeBorder(image,pad_amount,pad_amount,pad_amount,pad_amount,cv2.BORDER_REFLECT101)
     deviations = np.zeros(image.shape[:2], dtype=np.float64)
     offset = np.arange(-pad_amount, pad_amount + 1)
+    gc.collect()
     for row in range(deviations.shape[0]):
         for column in range(deviations.shape[1]):
-            gc.collect()
+            # gc.collect() # Unfortunately this freezes the program here.
             area = padded_image[row + pad_amount + offset[:, np.newaxis], column + pad_amount + offset]
             deviations[row, column] = _area_deviation(area)
+    gc.collect()
 
     return deviations
 
