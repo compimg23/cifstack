@@ -99,6 +99,7 @@ class Alg11Waveletr2dDecompComplex(object):
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
         
+    # Used to make sure dimensions of image are consistent.
     def convertWaveletAndBack(self, imgToConvert, wavelevel):
         imgdec0 = dtcwt.Transform2d().forward(imgToConvert[:,:,0], nlevels=wavelevel)
         imgdec1 = dtcwt.Transform2d().forward(imgToConvert[:,:,1], nlevels=wavelevel)
@@ -112,6 +113,7 @@ class Alg11Waveletr2dDecompComplex(object):
         newimg[:,:,2] = imgrec2
         return newimg
 
+    # Convert to format that we use in selection method.
     def convert_dtcwt_to_wavedec_list(self, complexDecomp):
         decList = []
         decList.append(complexDecomp.lowpass)
@@ -124,6 +126,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return decList
 
+    # Convert back to format for inverse wavelet reconstruction.
     def convert_wavedec_list_to_dtcwt(self, decList):
         decLen = len(decList)
         highpassList = []
@@ -143,6 +146,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return complexDecomp
     
+    # Prepare progress image and currently iterated image and send it to decomposition comparison.
     def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         fusedlevelimg = currimg.copy()#
         curr_gcoeffs0 = dtcwt.Transform2d().forward(currgrayimg, nlevels=wavelevel)
@@ -162,6 +166,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
         
+    # Loop through high pass decompositions for all 3 RGB channels.
     def channel_decomp_wavedec_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         gc.collect()
         curr_coeffs0 = dtcwt.Transform2d().forward(currimg[:,:,0], nlevels=wavelevel)
@@ -225,6 +230,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
     
+    # Check majority pixels in 3x3 Kernel, including border cases.
     def spatial_consistency_check(self, boolMatRaw):
         boolMatNew = boolMatRaw.copy()
         padMat = np.pad(boolMatRaw, [(1,1), (1,1)], mode='constant')
@@ -248,6 +254,7 @@ class Alg11Waveletr2dDecompComplex(object):
         boolMatNew = boolMatNewPad[1:shapeY-1, 1:shapeX-1]
         return boolMatNew
 
+    # Compare high pass subbands without low pass subband.
     def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         # Old comparison
@@ -293,6 +300,7 @@ class Alg11Waveletr2dDecompComplex(object):
         newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12, newgraydecompx13, newgraydecompx14, newgraydecompx15)
         return newdecompx, newgraydecompx
 
+    # Compare high pass subbands and update low pass subband.
     def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         # Old comparison
