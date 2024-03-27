@@ -12,7 +12,7 @@ import alignment
 import gc # for garbage collection
 
 class Alg10Waveletr2dDecompL2(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm10 (wavelet using pywt.wavedec2 method & consistency checks - w_mainlevel levels) starting.")
         print('image files', image_files)
         image_files = list(set(image_files)) # remove duplicates
@@ -20,18 +20,17 @@ class Alg10Waveletr2dDecompL2(object):
         print('sorted image files', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
         print(pywt.wavelist(kind='discrete'))
+        w_mainlevel = levelarg #1
+        waveletchoice = 'db5'
+        if w_mainlevel < 1:
+            raise ValueError('Real wavelet decomposition level must be at least 1. Use the -l command-line argument.')
         img_mats = alignMethod(img_mats)
-        print("typeimgmats",type(img_mats))
         num_files = len(image_files)
         print('Number of input files:', num_files)
-        family = 'cmor'
+        print('Using wavelet', waveletchoice, 'with decomposition level', w_mainlevel)
         print('Outputting possible wavelets for reference...')
         print(pywt.families())
-        print('family', family)
-        print('wavelist', pywt.wavelist(family))
-        w_mainlevel = 1
-        waveletchoice = 'db5'
-        print('waveletchoice', waveletchoice)
+        # print('wavelist', pywt.wavelist(family)) # Use to print wavelets of a given family variable from pywt.families().
         firstimg = img_mats[0]
         decomp1 = pywt.wavedec2(firstimg[:,:,0], waveletchoice, level=w_mainlevel)
         decomp2 = pywt.wavedec2(firstimg[:,:,1], waveletchoice, level=w_mainlevel)
@@ -72,12 +71,12 @@ class Alg10Waveletr2dDecompL2(object):
             # END NEW RECOMP
 
             recompname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_' + str(j) + '.jpg'
-            print('Saving recomposition')
+            print('Saving color recomposition')
             cv2.imwrite(recompname, recompimg)
             print('Recomposition saved in ' + recompname)
 
             recompgrayname = 'OutputFolder/dwtrec2_' + waveletchoice + '_recomp_gray' + str(j) + '.jpg'
-            print('Saving recomposition')
+            print('Saving gray recomposition')
             cv2.imwrite(recompgrayname, recompimggray)
             print('Recomposition gray saved in ' + recompgrayname)
 

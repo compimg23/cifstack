@@ -16,7 +16,7 @@ import gc # for garbage collection
 transFolder = 'TransFolder/'
 
 class Alg6MergeTest(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm5 starting.")
         # Code for algorithm 6 (from cmcguinness repository))
         print('image files', image_files)

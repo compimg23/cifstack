@@ -13,7 +13,7 @@ import dtcwt
 import gc # for garbage collection
 
 class Alg11Waveletr2dDecompComplex(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
         print('image files input list', image_files)
         image_files = list(set(image_files)) # remove duplicates
@@ -21,10 +21,13 @@ class Alg11Waveletr2dDecompComplex(object):
         print('sorted image files input list', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
         print(pywt.wavelist(kind='discrete'))
+        w_mainlevel = levelarg #11
+        if w_mainlevel < 2:
+            raise ValueError('Complex decomposition must be at least 2 for our selection metric. Use the -l command-line argument.')
         img_mats = alignMethod(img_mats) #remove to test w/out alignment
         num_files = len(image_files)
         print('Number of input files:', num_files)
-        w_mainlevel = 7
+        print('Using complex qshift wavelet with decomposition level', w_mainlevel)
         firstimg = img_mats[0]
         print('PLEASE NOTE: Transform2d().forward() will throw warnings and automatically resize input images for evenly divisible decompositions.')
         print('This does not affect the output significantly. This algorithm has been adjusted to take into account these dimension adjustments.')
