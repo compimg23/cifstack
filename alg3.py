@@ -12,7 +12,7 @@ import alignment
 import gc # for garbage collection
 
 class Alg3WaveletGray(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm3 (wavelet decomposition gray) starting.")
         print('image files', image_files)
         image_files = list(set(image_files)) # remove duplicates

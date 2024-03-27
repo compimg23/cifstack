@@ -21,7 +21,7 @@ import time
 def main():
     _parser = ArgumentParser(prog="Tool to focus stack a list of images.")
     _parser.add_argument(
-        "-a", "--alg", help="Number of algorithm to use.", required=True, type=str,
+        "-a", "--alg", help="Number of algorithm to use. 3 = Real (Haar) wavelet. 5 = Laplacian Pyramid. 6 = Laplacian. 10 = Daubechies. 11 = Complex (Q-Shift) wavelet.", required=True, type=str,
     )
     _parser.add_argument(
         "-v", "--alignver", help="Use 'old' or 'new' or 'alt' alignment version.", required=False, type=str,
@@ -40,22 +40,8 @@ def main():
         "-o", "--output", help="Name of output image including ending.", required=True, type=str,
     )
     _parser.add_argument(
-        "-g",
-        "--gaussian",
-        help="Size of gaussian blur kernel.",
-        default=5,
-        required=False,
-        type=int,
+        "-l", "--level", help="Decomposition level used for algorithms 10 and 11 only. Complex wavelet requires at least 2.", required=False, type=str,
     )
-    _parser.add_argument(
-        "-l",
-        "--laplacian",
-        help="Size of laplacian gradient kernel.",
-        default=5,
-        required=False,
-        type=int,
-    )
-    
     args = _parser.parse_args()
     
     image_files = sum(
@@ -126,7 +112,11 @@ def main():
     
     start_time_of_day = time.localtime()
 
-    resultImg = alg.startAlg(image_files, alignMethod)
+    if args.level == None:
+        levelargint = -1
+    else:
+        levelargint = int(args.level)
+    resultImg = alg.startAlg(image_files, alignMethod, levelargint)
     
     if os.path.exists(args.output):
         print(f"*Image {args.output} exists already. Canceling write operation.")

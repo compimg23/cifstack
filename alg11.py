@@ -13,7 +13,7 @@ import dtcwt
 import gc # for garbage collection
 
 class Alg11Waveletr2dDecompComplex(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
         print('image files input list', image_files)
         image_files = list(set(image_files)) # remove duplicates
@@ -21,10 +21,13 @@ class Alg11Waveletr2dDecompComplex(object):
         print('sorted image files input list', image_files)
         img_mats = [cv2.imread(img) for img in image_files]
         print(pywt.wavelist(kind='discrete'))
+        w_mainlevel = levelarg #11
+        if w_mainlevel < 2:
+            raise ValueError('Complex decomposition must be at least 2 for our selection metric. Use the -l command-line argument.')
         img_mats = alignMethod(img_mats) #remove to test w/out alignment
         num_files = len(image_files)
         print('Number of input files:', num_files)
-        w_mainlevel = 7
+        print('Using complex qshift wavelet with decomposition level', w_mainlevel)
         firstimg = img_mats[0]
         print('PLEASE NOTE: Transform2d().forward() will throw warnings and automatically resize input images for evenly divisible decompositions.')
         print('This does not affect the output significantly. This algorithm has been adjusted to take into account these dimension adjustments.')
@@ -96,6 +99,7 @@ class Alg11Waveletr2dDecompComplex(object):
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
         
+    # Used to make sure dimensions of image are consistent.
     def convertWaveletAndBack(self, imgToConvert, wavelevel):
         imgdec0 = dtcwt.Transform2d().forward(imgToConvert[:,:,0], nlevels=wavelevel)
         imgdec1 = dtcwt.Transform2d().forward(imgToConvert[:,:,1], nlevels=wavelevel)
@@ -109,6 +113,7 @@ class Alg11Waveletr2dDecompComplex(object):
         newimg[:,:,2] = imgrec2
         return newimg
 
+    # Convert to format that we use in selection method.
     def convert_dtcwt_to_wavedec_list(self, complexDecomp):
         decList = []
         decList.append(complexDecomp.lowpass)
@@ -121,6 +126,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return decList
 
+    # Convert back to format for inverse wavelet reconstruction.
     def convert_wavedec_list_to_dtcwt(self, decList):
         decLen = len(decList)
         highpassList = []
@@ -140,6 +146,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return complexDecomp
     
+    # Prepare progress image and currently iterated image and send it to decomposition comparison.
     def channel_decomp_multilevel_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         fusedlevelimg = currimg.copy()#
         curr_gcoeffs0 = dtcwt.Transform2d().forward(currgrayimg, nlevels=wavelevel)
@@ -159,6 +166,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return fusedleveldecomp0, fusedleveldecomp1, fusedleveldecomp2, fusedlevelgraydecomp 
         
+    # Loop through high pass decompositions for all 3 RGB channels.
     def channel_decomp_wavedec_3chan(self, currimg, progressimg, currgrayimg, progressgrayimg, wavelevel):
         gc.collect()
         curr_coeffs0 = dtcwt.Transform2d().forward(currimg[:,:,0], nlevels=wavelevel)
@@ -222,6 +230,7 @@ class Alg11Waveletr2dDecompComplex(object):
         gc.collect()
         return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
     
+    # Check majority pixels in 3x3 Kernel, including border cases.
     def spatial_consistency_check(self, boolMatRaw):
         boolMatNew = boolMatRaw.copy()
         padMat = np.pad(boolMatRaw, [(1,1), (1,1)], mode='constant')
@@ -245,6 +254,7 @@ class Alg11Waveletr2dDecompComplex(object):
         boolMatNew = boolMatNewPad[1:shapeY-1, 1:shapeX-1]
         return boolMatNew
 
+    # Compare high pass subbands without low pass subband.
     def combine_decomps_nolow(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         # Old comparison
@@ -290,6 +300,7 @@ class Alg11Waveletr2dDecompComplex(object):
         newgraydecompx = (newgraydecompx10, newgraydecompx11, newgraydecompx12, newgraydecompx13, newgraydecompx14, newgraydecompx15)
         return newdecompx, newgraydecompx
 
+    # Compare high pass subbands and update low pass subband.
     def combine_decomps(self, currdecomp, newdecompx, currgraydecomp, newgraydecompx):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         # Old comparison

@@ -11,7 +11,7 @@ from scipy.signal import medfilt2d
 import alignment
 
 class Alg8WaveletDeep(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm3 (wavelet decomposition gray deep level) starting.")
         print('image files', image_files)
         image_files = list(set(image_files)) # remove duplicates

@@ -18,7 +18,7 @@ outputfolder = 'OutputFolder/'
 
 
 class Alg5MergeTest(object):
-    def startAlg(self, image_files, alignMethod):
+    def startAlg(self, image_files, alignMethod, levelarg):
 
         print("Algorithm5 (Laplacian Pyramid) starting.")
 
