@@ -1,3 +1,5 @@
+# This code is based on parts of https://github.com/cmcguinness/focusstack.
+
 import cv2
 import numpy as np
 from scipy.signal import fftconvolve
