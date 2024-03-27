@@ -22,8 +22,9 @@ class Alg10Waveletr2dDecompL2(object):
         print(pywt.wavelist(kind='discrete'))
         w_mainlevel = levelarg #1
         waveletchoice = 'db5'
-        if w_mainlevel < 1:
-            raise ValueError('Real wavelet decomposition level must be at least 1. Use the -l command-line argument.')
+        if w_mainlevel < 1: #Use default level if too low.
+            w_mainlevel = 1
+            print('Real wavelet decomposition level must be at least 1. Setting it to default value 1. Use the -l command-line argument to set another value.')
         img_mats = alignMethod(img_mats)
         num_files = len(image_files)
         print('Number of input files:', num_files)

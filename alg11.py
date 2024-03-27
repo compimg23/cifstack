@@ -22,8 +22,9 @@ class Alg11Waveletr2dDecompComplex(object):
         img_mats = [cv2.imread(img) for img in image_files]
         print(pywt.wavelist(kind='discrete'))
         w_mainlevel = levelarg #11
-        if w_mainlevel < 2:
-            raise ValueError('Complex decomposition must be at least 2 for our selection metric. Use the -l command-line argument.')
+        if w_mainlevel < 2: #Use default level if too low.
+            w_mainlevel = 11
+            print('Complex decomposition level must be at least 2 for our selection metric. Setting it to default value 11. Use the -l command-line argument to set another.')
         img_mats = alignMethod(img_mats) #remove to test w/out alignment
         num_files = len(image_files)
         print('Number of input files:', num_files)
