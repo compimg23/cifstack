@@ -23,7 +23,8 @@ class Alg11Waveletr2dDecompComplex(object):
         print(pywt.wavelist(kind='discrete'))
         w_mainlevel = levelarg #11
         if w_mainlevel < 2:
-            raise ValueError('Complex decomposition must be at least 2 for our selection metric. Use the -l command-line argument.')
+            w_mainlevel = 11
+            print('Complex decomposition level must be at least 2 for our selection metric. Setting it to default value 11. Use the -l command-line argument to set another.')
         img_mats = alignMethod(img_mats) #remove to test w/out alignment
         num_files = len(image_files)
         print('Number of input files:', num_files)
