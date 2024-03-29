@@ -13,4 +13,5 @@ The parameter -c last/first defines the reference image within the dataset (pref
 With -i the input folder is chosen and -o is the name of the output image file with either .png or .jpg ending (without path because it is always saved in the folder named 'OutputFolder', which must already exist).
 
 An execution could look like this for Laplacian Pyramid: `python run.py -a 5 -v new -c last -i InputFolder -o output_pyramid.png`
+
 An execution using complex Q-shift wavelets with decomposition level 15 could look like this: `python run.py -a 11 -l 15 -v new -c last -i InputFolder -o output_qshift.png`
