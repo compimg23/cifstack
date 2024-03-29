@@ -6,7 +6,7 @@ Based loosely on https://github.com/momonala/focus-stack, https://github.com/cmc
 For help with the arguments type: `python run.py --help`
 
 The code starts running from run.py. 
-From there the main algorithms for real Haar wavelet (algorithm 3) Laplacian pyramid (algorithm 5), simple Laplacian (algorithm 6), real Daubechies wavelet (algorithm 10) and complex Q-shift wavelet (algorithm 11) can be selectet with the parameter -a followed by the algorithm number. For algorithms 10 & 11, you may optionally provide the wavelet decomposition level with the -l parameter.
+From there the main algorithms for real Haar wavelet (algorithm 3) Laplacian pyramid (algorithm 5), simple Laplacian (algorithm 6), real Daubechies wavelet (algorithm 10) and complex Q-shift wavelet (algorithm 11) can be selected with the parameter -a followed by the algorithm number. For algorithms 10 & 11, you may optionally provide the wavelet decomposition level with the -l parameter.
 
 The alignment method depends on the image set used, usually -v new is sufficient.
 The parameter -c last/first defines the reference image within the dataset (preferably the image with features that are in all the other images).
