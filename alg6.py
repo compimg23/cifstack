@@ -15,9 +15,10 @@ import gc # for garbage collection
 
 transFolder = 'TransFolder/'
 
+# alg6 is Laplacian imported from other repository, but using our alignment.
 class Alg6MergeTest(object):
     def startAlg(self, image_files, alignMethod, levelarg):
-        print("Algorithm5 starting.")
+        print("Algorithm6 (Laplacian) starting.")
         # Code for algorithm 6 (from cmcguinness repository))
         print('image files', image_files)
         image_files = list(set(image_files)) # remove duplicates

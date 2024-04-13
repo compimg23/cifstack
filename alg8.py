@@ -10,6 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 
+# alg8 is precursor to alg10. Tried here to manually decompose multiple real wavelet levels. Abandoned because wavedec2 method is easier for this. 
 class Alg8WaveletDeep(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm3 (wavelet decomposition gray deep level) starting.")
