@@ -1,7 +1,7 @@
 #Computational Imaging WS23-24
 #Focal Stacking group
 #Written by Manuel Gonzales & Lukas Giehl
-#Example: Run 6th algorithm with: python run.py -a 6 -i InputFolder -o output.jpg
+#Example: Run 6th algorithm with: python run.py -a 6 -i InputFolder -o output.png
 #Example: Get help for more options: python run.py --help
 
 import os
