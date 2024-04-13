@@ -35,10 +35,12 @@ class Alg3WaveletGray(object):
         decomp1 = pywt.dwt2(firstimg[:,:,0], waveletchoice, mode='per')
         decomp2 = pywt.dwt2(firstimg[:,:,1], waveletchoice, mode='per')
         decomp3 = pywt.dwt2(firstimg[:,:,2], waveletchoice, mode='per')
+        # Initialize variables that will be updated with best sharpness information in each iteration.
         newdecompg = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
         newdecomp1 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
         newdecomp2 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
         newdecomp3 = np.zeros_like(decomp1[0]), (np.zeros_like(decomp1[1][0]), np.zeros_like(decomp1[1][1]), np.zeros_like(decomp1[1][2]))
+        # Iterate over each file, updating final result each time.
         for j in range(num_files):
             gc.collect()
             currimg = img_mats[j]
@@ -47,12 +49,14 @@ class Alg3WaveletGray(object):
 
             imggray = cv2.cvtColor(currimg, cv2.COLOR_BGR2GRAY)
             
+            # Wavelet decomposition of current image.
             decompgray = pywt.dwt2(imggray, waveletchoice, mode='per')
 
             decomp1 = pywt.dwt2(currimg[:,:,0], waveletchoice, mode='per')
             decomp2 = pywt.dwt2(currimg[:,:,1], waveletchoice, mode='per')
             decomp3 = pywt.dwt2(currimg[:,:,2], waveletchoice, mode='per')
 
+            # Some unnecessary reassignments for debugging.
             LLg, (LHg, HLg, HHg) = decompgray
 
             LL1, (LH1, HL1, HH1) = decomp1
@@ -67,6 +71,7 @@ class Alg3WaveletGray(object):
             decomp2 = LL2, (LH2, HL2, HH2)
             decomp3 = LL3, (LH3, HL3, HH3)
 
+            # Update the result decompositions by comparing to current image.
             newdecomp1, newdecompg = self.combine_decomps_gray(newdecomp1, newdecompg, decomp1, decompgray)
             newdecomp2, newdecompg = self.combine_decomps_gray(newdecomp2, newdecompg, decomp2, decompgray)
             newdecomp3, newdecompg = self.combine_decomps_gray(newdecomp3, newdecompg, decomp3, decompgray)
@@ -75,6 +80,7 @@ class Alg3WaveletGray(object):
             recompimg = np.zeros_like(currimg)
             recompimggray = np.zeros_like(imggray)
 
+            # Recomposite result decomposition so we can save an image of current progress.
             recompimggray[:,:] = pywt.idwt2(newdecompg, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
             recompimg[:,:,0] = pywt.idwt2(newdecomp1, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
             recompimg[:,:,1] = pywt.idwt2(newdecomp2, waveletchoice, mode='per')[0:recompimg.shape[0],0:recompimg.shape[1]]
@@ -122,9 +128,13 @@ class Alg3WaveletGray(object):
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
         return recompimg
     
+    # Return best absolute value at each element of image matrix.
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
 
+    # Calculate best pixels using high-pass of a color channel.
+    # Compare the result image with the current input image to see if it's better at each pixel. This is for a single color channel. 
+    # Add all 3 high-pass subbands at each coordinate to determine which low-pass and high-pass pixels to take at that coordinate.
     def combine_decomps(self, newdecompx, currdecomp):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         boolMat = np.abs(newdecompx[1][0]) + np.abs(newdecompx[1][1]) + np.abs(newdecompx[1][2]) > \
@@ -142,6 +152,10 @@ class Alg3WaveletGray(object):
         newdecompx = newdecompx0, (newdecompx10, newdecompx11, newdecompx12)
         return newdecompx
 
+    # Calculate best pixel for a single channel, but use the grayscale versions of the result image and the current image
+    # for comparison of high-pass subbands. This way all three color channels will use the same decision. This will be called
+    # separately for each color channel, and the same grayscale image should be input each time. (Possible to make this more
+    # efficient)
     def combine_decomps_gray(self, newdecompx, newdecompg, currdecomp, currdecompg):
         # Boolean matrix tells us for each pixel which image has the three high-pass subband pixels with greatest total abs value.
         boolMat = np.abs(newdecompg[1][0]) + np.abs(newdecompg[1][1]) + np.abs(newdecompg[1][2]) > \

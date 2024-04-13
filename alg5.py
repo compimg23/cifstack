@@ -16,7 +16,7 @@ smooth_size = 32
 transFolder = 'TransFolder/'
 outputfolder = 'OutputFolder/'
 
-
+# alg5 is Laplacian Pyramid imported from other repository, but using our alignment.
 class Alg5MergeTest(object):
     def startAlg(self, image_files, alignMethod, levelarg):
 

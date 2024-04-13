@@ -10,6 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 
+# Precursor to alg3. This is inferior because it does not use gray image for high-pass comparison.
 class Alg4MergeTest(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm4 (wavelet decomposition) starting.")

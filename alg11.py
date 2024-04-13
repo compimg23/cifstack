@@ -12,6 +12,10 @@ import alignment
 import dtcwt
 import gc # for garbage collection
 
+# alg11 implements complex wavelet decomposition with default Q-Shift wavelet from the Transform2d class. Accepts wavelet level using the -l console argument.
+# This also uses subband & spatial consistency checks as described in:
+# "Complex wavelets for extended depth-of-field: A new method for the fusion of multichannel microscopy images. Microscopy research and technique."
+# by Forster-Heinlein, Brigitte & Van De Ville, Dimitri & Berent, Jesse & Sage, Daniel & Unser, Michael.
 class Alg11Waveletr2dDecompComplex(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm11 (complex wavelet using dtcwt.Transform2d class - 7 levels) starting.")
@@ -32,15 +36,19 @@ class Alg11Waveletr2dDecompComplex(object):
         firstimg = img_mats[0]
         print('PLEASE NOTE: Transform2d().forward() will throw warnings and automatically resize input images for evenly divisible decompositions.')
         print('This does not affect the output significantly. This algorithm has been adjusted to take into account these dimension adjustments.')
+        # Decompose starting image.
         decomp1 = dtcwt.Transform2d().forward(firstimg[:,:,0], nlevels=w_mainlevel)
         decomp2 = dtcwt.Transform2d().forward(firstimg[:,:,1], nlevels=w_mainlevel)
         decomp3 = dtcwt.Transform2d().forward(firstimg[:,:,2], nlevels=w_mainlevel)
+        # Convert to format similar to that used for real wavelets (alg3)
         decomp1 = self.convert_dtcwt_to_wavedec_list(decomp1)
         decomp2 = self.convert_dtcwt_to_wavedec_list(decomp2)
         decomp3 = self.convert_dtcwt_to_wavedec_list(decomp3)
+        # Do same decomposition and conversion for gray image.
         wdecompgimg = cv2.cvtColor(img_mats[0], cv2.COLOR_BGR2GRAY)
         newdecompg = dtcwt.Transform2d().forward(wdecompgimg, nlevels=w_mainlevel)
         newdecompg = self.convert_dtcwt_to_wavedec_list(newdecompg)
+        # newdecomp variables contain the decomposition that will be improved in every iteration by the next input image.
         newdecomp1 = decomp1
         newdecomp2 = decomp2
         newdecomp3 = decomp3
@@ -70,6 +78,7 @@ class Alg11Waveletr2dDecompComplex(object):
             recompimggray = np.zeros((graychan.shape[0], graychan.shape[1]))
             recompimg = np.zeros((recchan.shape[0], recchan.shape[1], 3))
             gc.collect()
+            # Recomposition. Make sure matrix size is same because Transform2d can change dimensions slightly if wavelet has non-zero modulo.
             recompimggray[:,:] = dtcwt.Transform2d().inverse(self.convert_wavedec_list_to_dtcwt(newdecompg))[0:recompimggray.shape[0],0:recompimggray.shape[1]]
             recompimg[:,:,0] = dtcwt.Transform2d().inverse(self.convert_wavedec_list_to_dtcwt(newdecomp1))[0:recompimg.shape[0],0:recompimg.shape[1]]
             recompimg[:,:,1] = dtcwt.Transform2d().inverse(self.convert_wavedec_list_to_dtcwt(newdecomp2))[0:recompimg.shape[0],0:recompimg.shape[1]]
@@ -97,6 +106,7 @@ class Alg11Waveletr2dDecompComplex(object):
         print('FINISHED METHOD. Returning low pass filtered image (smaller size).')
         return recompimg
     
+    # Return best absolute value at each element of image matrix.
     def absmax(self, a, b):
         return np.where(np.abs(a) > np.abs(b), a, b)
         

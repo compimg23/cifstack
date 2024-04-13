@@ -10,6 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 
+# alg7 experimented with applying a Laplacian (2nd deriv.) to the lowpass subband of real wavelet decomposition. But results are not good.
 class Alg7WaveletLaplace(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm7 (wavelet with laplacian for LL subband) starting.")

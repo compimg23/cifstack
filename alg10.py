@@ -11,6 +11,10 @@ from scipy.signal import medfilt2d
 import alignment
 import gc # for garbage collection
 
+# alg10 enables multi-level real wavelet decomposition using the -l console argument. Uses the wavedec2 method.
+# This also uses subband & spatial consistency checks as described in:
+# "Complex wavelets for extended depth-of-field: A new method for the fusion of multichannel microscopy images. Microscopy research and technique."
+# by Forster-Heinlein, Brigitte & Van De Ville, Dimitri & Berent, Jesse & Sage, Daniel & Unser, Michael.
 class Alg10Waveletr2dDecompL2(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm10 (wavelet using pywt.wavedec2 method & consistency checks - w_mainlevel levels) starting.")
@@ -161,6 +165,7 @@ class Alg10Waveletr2dDecompL2(object):
         return fusedcoeffs0, fusedcoeffs1, fusedcoeffs2, fusedgraycoeffs
     
     
+    # Adjust boolean matrix to match each pixel with the surrounding pixels. See Forster et al.
     def spatial_consistency_check(self, boolMatRaw):
         boolMatNew = boolMatRaw.copy()
         padMat = np.pad(boolMatRaw, [(1,1), (1,1)], mode='constant')

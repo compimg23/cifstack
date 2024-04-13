@@ -10,6 +10,7 @@ from scipy.ndimage import maximum_filter
 from scipy.signal import medfilt2d
 import alignment
 
+# alg9 is precursor to alg10. Tested using the wavedec2 method instead of dwt2.
 class Alg9Waveletr2dDecompL1(object):
     def startAlg(self, image_files, alignMethod, levelarg):
         print("Algorithm9 (wavelet using pywt.wavedec2 method - 1 level) starting.")

@@ -1,7 +1,8 @@
 #Computational Imaging WS23-24
 #Focal Stacking group
-#Run 2nd algorithm with: python run.py -a 2 -i InputFolder -o output.jpg
-#Print lines from run.py should begin with a *
+#Written by Manuel Gonzales & Lukas Giehl
+#Example: Run 6th algorithm with: python run.py -a 6 -i InputFolder -o output.png
+#Example: Get help for more options: python run.py --help
 
 import os
 from glob import glob
@@ -24,10 +25,10 @@ def main():
         "-a", "--alg", help="Number of algorithm to use. 3 = Real (Haar) wavelet. 5 = Laplacian Pyramid. 6 = Laplacian. 10 = Daubechies. 11 = Complex (Q-Shift) wavelet.", required=True, type=str,
     )
     _parser.add_argument(
-        "-v", "--alignver", help="Use 'old' or 'new' or 'alt' alignment version.", required=False, type=str,
+        "-v", "--alignver", help="Use 'new' or 'alt' or 'old' alignment version. Default 'new'.", required=False, type=str,
     )
     _parser.add_argument(
-        "-c", "--compareimg", help="Use 'last' or 'first' image for alignment comparison.", required=False, type=str,
+        "-c", "--compareimg", help="Use 'last' or 'first' image for alignment comparison. Default 'last'.", required=False, type=str,
     )
     _parser.add_argument(
         "-i",
@@ -37,7 +38,7 @@ def main():
         type=str,
     )
     _parser.add_argument(
-        "-o", "--output", help="Name of output image including ending.", required=True, type=str,
+        "-o", "--output", help="Name of output image including ending, without folder (saves in ./OutputFolder).", required=True, type=str,
     )
     _parser.add_argument(
         "-l", "--level", help="Decomposition level used for algorithms 10 and 11 only. Complex wavelet requires at least 2.", required=False, type=str,
